@@ -33,15 +33,16 @@ public class OwnerHurtTargetGoal extends TrackTargetGoal {
             return false;
         }
         PlayerEntity playerOwner = (PlayerEntity) owner;
-        LivingEntity lastAttacked = (LivingEntity) LastAttackedManager.lastAttacked.get(playerOwner.getUuid());
-        if (lastAttacked == null || !lastAttacked.isAlive() || lastAttacked == this.mob) {
+//        LivingEntity lastAttacked = (LivingEntity) LastAttackedManager.lastAttacked.get(playerOwner.getUuid());
+        LivingEntity lastAttacked = playerOwner.getAttacking();
+        if (lastAttacked == null || !lastAttacked.isAlive() || lastAttacked == this.ghast) {
             return false;
         }
         this.ownerLastTarget = lastAttacked;
 
         // Check if the owner has a target and if the target is different from the last one we tracked.
         // The time check ensures we only react to recent attacks.
-        if (this.ownerLastTarget != null && this.ownerLastAttackedTime == owner.getLastAttackedTime() && this.ownerLastTarget.isAlive()) {
+        if (this.ownerLastTarget != null && this.ownerLastAttackedTime != owner.getLastAttackTime() && this.ownerLastTarget.isAlive()) {
             return true; /*this.canTrack(this.ownerLastTarget, TargetPredicate.DEFAULT);*/
         }
 
@@ -51,9 +52,9 @@ public class OwnerHurtTargetGoal extends TrackTargetGoal {
     @Override
     public void start() {
         // Set the ghast's target to the entity its owner attacked.
-        this.mob.setTarget(this.ownerLastTarget);
+        this.ghast.setTarget(this.ownerLastTarget);
         LivingEntity owner = this.ghast.getOwner();
-        this.ownerLastAttackedTime = owner.getLastAttackedTime();
+        this.ownerLastAttackedTime = owner.getLastAttackTime();
         super.start();
     }
 }
