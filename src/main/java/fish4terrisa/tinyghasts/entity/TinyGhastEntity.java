@@ -1,0 +1,233 @@
+package fish4terrisa.tinyghasts.entity;
+
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.mob.GhastEntity;
+import net.minecraft.world.World;
+
+import net.minecraft.entity.data.DataTracker;
+import net.minecraft.entity.data.TrackedData;
+import net.minecraft.entity.data.TrackedDataHandlerRegistry;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.particle.ParticleTypes;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.TeleportTarget;
+import net.minecraft.entity.ai.goal.*;
+import java.util.Optional;
+import java.util.UUID;
+import java.lang.reflect.Method;
+import org.jetbrains.annotations.Nullable;
+
+import fish4terrisa.tinyghasts.entity.ai.goal.TinyGhastFireballAttackGoal;
+import fish4terrisa.tinyghasts.entity.ai.goal.TeleportToOwnerGoal;
+import fish4terrisa.tinyghasts.entity.ai.goal.TinyGhastFollowOwnerGoal;
+import fish4terrisa.tinyghasts.entity.ai.goal.TinyGhastFlyRandomlyGoal;
+import fish4terrisa.tinyghasts.entity.ai.goal.TinyGhastRevengeGoal;
+import fish4terrisa.tinyghasts.entity.ai.goal.TinyGhastLookGoal;
+import fish4terrisa.tinyghasts.entity.ai.goal.OwnerHurtByTargetGoal;
+import fish4terrisa.tinyghasts.entity.ai.goal.OwnerHurtTargetGoal;
+import fish4terrisa.tinyghasts.entity.ai.control.TinyGhastMoveControl;
+
+public class TinyGhastEntity extends GhastEntity {
+    protected static final TrackedData<Optional<UUID>> OWNER_UUID = DataTracker.registerData(TinyGhastEntity.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
+    protected static final TrackedData<Boolean> IS_TAMED = DataTracker.registerData(TinyGhastEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+
+    public TinyGhastEntity(EntityType<? extends GhastEntity> entityType, World world) {
+        super(entityType, world);
+        this.moveControl = new TinyGhastMoveControl(this);
+    }
+
+    @Override
+    protected void initDataTracker(DataTracker.Builder builder) {
+        super.initDataTracker(builder);
+        builder.add(IS_TAMED, false);
+        builder.add(OWNER_UUID, Optional.empty());
+    }
+    @Override
+    protected void initGoals() {
+       this.goalSelector.clear(goal -> true);
+       this.targetSelector.clear(goal -> true);
+
+        // AI Goals from lowest priority (bottom) to highest (top)
+        this.targetSelector.add(1, new OwnerHurtTargetGoal(this));
+        this.targetSelector.add(2, new OwnerHurtByTargetGoal(this));
+        this.targetSelector.add(3, new TinyGhastRevengeGoal(this));
+        this.goalSelector.add(4, new TeleportToOwnerGoal(this, 15));
+        //this.goalSelector.add(7, new TinyGhastFollowOwnerGoal(this, 1.0D, 10.0F, 2.0F));
+        this.goalSelector.add(5, new TinyGhastFireballAttackGoal(this));
+        this.goalSelector.add(6, new TinyGhastFlyRandomlyGoal(this));
+        this.goalSelector.add(7, new TinyGhastLookGoal(this));
+
+    }
+
+    @Override
+    public ActionResult interactMob(PlayerEntity player, Hand hand) {
+        ItemStack itemStack = player.getStackInHand(hand);
+        if (!this.isTamed() && itemStack.getItem() == Items.CAKE) {
+            if (!player.getAbilities().creativeMode) {
+                itemStack.decrement(1);
+            }
+            if (!this.getWorld().isClient) {
+                if (this.random.nextInt(3) == 0) {
+                    this.setOwner(player);
+                    this.navigation.stop();
+                    this.setTarget(null);
+                    this.setPersistent();
+                    if (this.getWorld() instanceof ServerWorld) {
+                        ((ServerWorld) this.getWorld()).spawnParticles(
+                            ParticleTypes.HEART,
+                            this.getX(),
+                            this.getBodyY(0.5D),
+                            this.getZ(),
+                            7, // particle count
+                            this.random.nextGaussian() * 0.02D,
+                            this.random.nextGaussian() * 0.02D,
+                            this.random.nextGaussian() * 0.02D,
+                            0.1D // particle speed
+                        );
+                    }
+                }
+
+            }
+            return ActionResult.SUCCESS;
+        }
+        return super.interactMob(player, hand);
+    }
+
+    @Override
+    public void writeCustomDataToNbt(NbtCompound nbt) {
+        super.writeCustomDataToNbt(nbt);
+        nbt.putBoolean("IsTamed", this.isTamed());
+        if (this.getOwnerUuid().isPresent()) {
+            nbt.putUuid("Owner", this.getOwnerUuid().get());
+        }
+    }
+
+    @Override
+    public void readCustomDataFromNbt(NbtCompound nbt) {
+        super.readCustomDataFromNbt(nbt);
+        this.setTamed(nbt.getBoolean("IsTamed"));
+        UUID ownerUuid = nbt.containsUuid("Owner") ? nbt.getUuid("Owner") : null;
+        if (ownerUuid != null) {
+            this.setOwnerUuid(Optional.of(ownerUuid));
+        }
+    }
+
+     public boolean isTamed() {
+        return this.dataTracker.get(IS_TAMED);
+    }
+
+    public void setTamed(boolean tamed) {
+        this.dataTracker.set(IS_TAMED, tamed);
+    }
+
+    public Optional<UUID> getOwnerUuid() {
+        return this.dataTracker.get(OWNER_UUID);
+    }
+
+    public void setOwnerUuid(Optional<UUID> uuid) {
+        this.dataTracker.set(OWNER_UUID, uuid);
+    }
+
+    /**
+     * Gets the owner of this tamed entity.
+     * This method is capable of finding the owner even across different dimensions.
+     *
+     * @return The owner LivingEntity, or null if not found or not owned.
+     */
+    public LivingEntity getOwner() {
+        try {
+            Optional<UUID> uuidOptional = this.getOwnerUuid();
+            if (uuidOptional.isEmpty()) {
+                return null; // No owner UUID is present.
+            }
+            UUID ownerUuid = uuidOptional.get();
+            MinecraftServer server = this.getWorld().getServer();
+            // On the server, we can get the player from the player manager, which is aware of all dimensions.
+            if (server != null) {
+                return server.getPlayerManager().getPlayer(ownerUuid);
+            }
+            // On the client, we can only check the current world. This is a fallback.
+            else {
+                return this.getWorld().getPlayerByUuid(ownerUuid);
+            }
+        } catch (IllegalArgumentException e) {
+            // This can happen if the UUID is somehow malformed.
+            return null;
+        }
+    }
+
+    public void setOwner(PlayerEntity player) {
+        this.setTamed(true);
+        this.setOwnerUuid(Optional.of(player.getUuid()));
+    }
+    
+    @Override
+    public boolean canTarget(LivingEntity target) {
+        if (this.getOwner() != null) {
+            // Don't target the owner, their pets, or team members
+            if (target == this.getOwner() || (this.getOwner().getScoreboardTeam() != null && this.getOwner().getScoreboardTeam() == target.getScoreboardTeam())) {
+                return false;
+            }
+            if (target instanceof TinyGhastEntity && ((TinyGhastEntity) target).getOwner() == this.getOwner()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void teleportToOwner(ServerWorld newWorld) {
+        LivingEntity owner = this.getOwner();
+        if (owner == null) {
+            return;
+        }
+
+        // Find a safe position near the owner in the new world.
+        BlockPos targetPos = findSafeTeleportPosition(newWorld, owner.getBlockPos());
+
+        // If no safe spot is found, teleport directly to the owner's position as a fallback.
+        if (targetPos == null) {
+            targetPos = owner.getBlockPos();
+        }
+
+        // This method handles everything, including detaching from the old world
+        // and attaching to the new one.
+        //this.teleport(newWorld, targetPos.getX() + 0.5, targetPos.getY(), targetPos.getZ() + 0.5, this.getYaw(), this.getPitch());
+        TeleportTarget target = new TeleportTarget(newWorld, new Vec3d(targetPos.getX() + 0.5, targetPos.getY(), targetPos.getZ() + 0.5), Vec3d.ZERO, this.getYaw(), this.getPitch(), TeleportTarget.ADD_PORTAL_CHUNK_TICKET);
+        this.teleportTo(target);
+        this.getNavigation().stop(); // Stop any current pathing.
+    }
+
+    /**
+     * Helper method to find a safe, non-solid block to teleport to near a target position.
+     * @param world The world to search in.
+     * @param center The central position to search around.
+     * @return A safe BlockPos, or null if none is found.
+     */
+    private BlockPos findSafeTeleportPosition(ServerWorld world, BlockPos center) {
+        for (int i = 0; i < 16; ++i) {
+            // Search in a 7x7x5 area around the player
+            int x = center.getX() + this.random.nextInt(7) - 3;
+            int z = center.getZ() + this.random.nextInt(7) - 3;
+            int y = center.getY() + this.random.nextInt(5) - 1; // Check slightly above and below
+
+            BlockPos.Mutable testPos = new BlockPos.Mutable(x, y, z);
+
+            if (world.isAir(testPos)) {
+                return testPos.toImmutable();
+            }
+        }
+        // Return null if no suitable position was found after 16 attempts.
+        return null;
+    }
+
+
+}
