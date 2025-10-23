@@ -54,12 +54,6 @@ of(RegistryKeys.ENTITY_TYPE, Identifier.of("tiny-ghasts", "tinyghast")))
     @Override
     public void onInitialize() {
 			FabricDefaultAttributeRegistry.register(TINYGHAST, TinyGhastEntity.createMobAttributes());
-      AttackEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
-        if (!world.isClient() && player instanceof PlayerEntity) {
-            LastAttackedManager.lastAttacked.put(player.getUuid(), entity);
-        }
-            return ActionResult.PASS;
-      });
       PlayerEventHandler.register();
     }
 

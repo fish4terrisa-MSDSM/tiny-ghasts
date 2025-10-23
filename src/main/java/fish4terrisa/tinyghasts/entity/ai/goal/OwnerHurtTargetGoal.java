@@ -1,7 +1,6 @@
 package fish4terrisa.tinyghasts.entity.ai.goal;
 
 import fish4terrisa.tinyghasts.entity.TinyGhastEntity;
-import fish4terrisa.tinyghasts.LastAttackedManager;
 
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.TrackTargetGoal;
@@ -33,7 +32,6 @@ public class OwnerHurtTargetGoal extends TrackTargetGoal {
             return false;
         }
         PlayerEntity playerOwner = (PlayerEntity) owner;
-//        LivingEntity lastAttacked = (LivingEntity) LastAttackedManager.lastAttacked.get(playerOwner.getUuid());
         LivingEntity lastAttacked = playerOwner.getAttacking();
         if (lastAttacked == null || !lastAttacked.isAlive() || lastAttacked == this.ghast) {
             return false;

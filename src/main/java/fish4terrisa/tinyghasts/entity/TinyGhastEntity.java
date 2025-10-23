@@ -28,7 +28,6 @@ import org.jetbrains.annotations.Nullable;
 
 import fish4terrisa.tinyghasts.entity.ai.goal.TinyGhastFireballAttackGoal;
 import fish4terrisa.tinyghasts.entity.ai.goal.TeleportToOwnerGoal;
-import fish4terrisa.tinyghasts.entity.ai.goal.TinyGhastFollowOwnerGoal;
 import fish4terrisa.tinyghasts.entity.ai.goal.TinyGhastFlyRandomlyGoal;
 import fish4terrisa.tinyghasts.entity.ai.goal.TinyGhastRevengeGoal;
 import fish4terrisa.tinyghasts.entity.ai.goal.TinyGhastLookGoal;
@@ -61,7 +60,6 @@ public class TinyGhastEntity extends GhastEntity {
         this.targetSelector.add(2, new OwnerHurtByTargetGoal(this));
         this.targetSelector.add(3, new TinyGhastRevengeGoal(this));
         this.goalSelector.add(4, new TeleportToOwnerGoal(this, 15));
-        //this.goalSelector.add(7, new TinyGhastFollowOwnerGoal(this, 1.0D, 10.0F, 2.0F));
         this.goalSelector.add(5, new TinyGhastFireballAttackGoal(this));
         this.goalSelector.add(6, new TinyGhastFlyRandomlyGoal(this));
         this.goalSelector.add(7, new TinyGhastLookGoal(this));
