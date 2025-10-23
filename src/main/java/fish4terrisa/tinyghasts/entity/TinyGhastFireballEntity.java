@@ -14,6 +14,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.util.Uuids;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
@@ -186,16 +187,16 @@ public class TinyGhastFireballEntity extends ThrownItemEntity {
         super.writeCustomDataToNbt(nbt);
         nbt.putBoolean("IsSnowball", this.dataTracker.get(IS_SNOWBALL));
         if (this.targetUuid != null) {
-            nbt.putUuid("Target", this.targetUuid);
+            nbt.put("Target", Uuids.CODEC, this.targetUuid);
         }
     }
 
     @Override
     public void readCustomDataFromNbt(NbtCompound nbt) {
         super.readCustomDataFromNbt(nbt);
-        this.dataTracker.set(IS_SNOWBALL, nbt.getBoolean("IsSnowball"));
-        if (nbt.containsUuid("Target")) {
-            this.targetUuid = nbt.getUuid("Target");
+        this.dataTracker.set(IS_SNOWBALL, nbt.getBoolean("IsSnowball").orElse(false));
+        if (nbt.get("Target", Uuids.CODEC).isPresent()) {
+            this.targetUuid = nbt.get("Target", Uuids.CODEC).orElse(null);
         }
     }
 }

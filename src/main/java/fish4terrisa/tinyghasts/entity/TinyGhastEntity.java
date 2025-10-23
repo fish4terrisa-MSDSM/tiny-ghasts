@@ -7,16 +7,20 @@ import net.minecraft.world.World;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
+import net.minecraft.entity.data.TrackedDataHandler;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.util.Uuids;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.dynamic.Codecs;
+import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.TeleportTarget;
@@ -36,7 +40,7 @@ import fish4terrisa.tinyghasts.entity.ai.goal.OwnerHurtTargetGoal;
 import fish4terrisa.tinyghasts.entity.ai.control.TinyGhastMoveControl;
 
 public class TinyGhastEntity extends GhastEntity {
-    protected static final TrackedData<Optional<UUID>> OWNER_UUID = DataTracker.registerData(TinyGhastEntity.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
+    protected static final TrackedData<Optional<UUID>> OWNER_UUID = DataTracker.registerData(TinyGhastEntity.class, TrackedDataHandler.create(Uuids.PACKET_CODEC.collect(PacketCodecs::optional)));
     protected static final TrackedData<Boolean> IS_TAMED = DataTracker.registerData(TinyGhastEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 
     public TinyGhastEntity(EntityType<? extends GhastEntity> entityType, World world) {
@@ -105,15 +109,15 @@ public class TinyGhastEntity extends GhastEntity {
         super.writeCustomDataToNbt(nbt);
         nbt.putBoolean("IsTamed", this.isTamed());
         if (this.getOwnerUuid().isPresent()) {
-            nbt.putUuid("Owner", this.getOwnerUuid().get());
+            nbt.put("Owner", Uuids.CODEC, this.getOwnerUuid().get());
         }
     }
 
     @Override
     public void readCustomDataFromNbt(NbtCompound nbt) {
         super.readCustomDataFromNbt(nbt);
-        this.setTamed(nbt.getBoolean("IsTamed"));
-        UUID ownerUuid = nbt.containsUuid("Owner") ? nbt.getUuid("Owner") : null;
+        this.setTamed(nbt.getBoolean("IsTamed").orElse(false));
+        UUID ownerUuid = nbt.get("Owner", Uuids.CODEC).orElse(null);
         if (ownerUuid != null) {
             this.setOwnerUuid(Optional.of(ownerUuid));
         }
