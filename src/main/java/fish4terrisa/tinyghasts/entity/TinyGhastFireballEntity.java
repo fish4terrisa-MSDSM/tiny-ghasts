@@ -144,13 +144,14 @@ public class TinyGhastFireballEntity extends ThrownItemEntity {
 
             if (isSnowball) {
                 if ( this.getWorld() instanceof ServerWorld) {
-                livingEntity.damage((ServerWorld) this.getWorld(), damageSource, 2.0f); // 1 heart
+                    livingEntity.damage((ServerWorld) this.getWorld(), damageSource, 4.0f); // 2 heart
                                                                                             }
                 Vec3d knockbackVec = this.getPos().subtract(livingEntity.getPos()).normalize();
                 livingEntity.takeKnockback(0.5, knockbackVec.x, knockbackVec.z);
             } else {
                 if ( this.getWorld() instanceof ServerWorld) {
-                livingEntity.damage((ServerWorld) this.getWorld(), damageSource, 1.0f); // Half a heart
+                    livingEntity.damage((ServerWorld) this.getWorld(), damageSource, 1.0f); // Half a heart
+                                                                                                       livingEntity.setFireTicks(40); // set it on fire for 2 sec
                                                                                             }
             }
         }
