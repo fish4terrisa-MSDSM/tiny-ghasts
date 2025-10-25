@@ -6,6 +6,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.TrackTargetGoal;
+
 import java.util.EnumSet;
 
 public class TinyGhastRevengeGoal extends TrackTargetGoal {
@@ -52,7 +53,7 @@ public class TinyGhastRevengeGoal extends TrackTargetGoal {
 
         // Let other tiny ghasts owned by the same player know about the attacker
         LivingEntity owner = this.ghast.getOwner();
-        if(owner instanceof PlayerEntity) {
+        if (owner instanceof PlayerEntity) {
             this.ghast.getWorld().getEntitiesByClass(TinyGhastEntity.class, this.ghast.getBoundingBox().expand(40.0D, 20.0D, 40.0D), (otherGhast) -> {
                 return otherGhast != this.ghast && otherGhast.getOwner() == owner;
             }).forEach((allyGhast) -> {

@@ -28,6 +28,8 @@ import net.minecraft.entity.projectile.SmallFireballEntity;
 import net.minecraft.item.FireChargeItem;
 import net.minecraft.item.SnowballItem;
 import net.minecraft.item.Item.Settings;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.effect.StatusEffects;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -84,7 +86,7 @@ public class TinyGhastFireballEntity extends ThrownItemEntity {
             if (this.target == null || !this.target.isAlive()) {
                 // If target is dead or gone, stop homing and continue straight
                 if (this.targetUuid != null && this.getWorld() instanceof ServerWorld) {
-                    Entity entity = ((ServerWorld)this.getWorld()).getEntity(this.targetUuid);
+                    Entity entity = ((ServerWorld) this.getWorld()).getEntity(this.targetUuid);
                     if (entity instanceof LivingEntity && entity.isAlive()) {
                         this.target = (LivingEntity) entity;
                     } else {
@@ -95,11 +97,11 @@ public class TinyGhastFireballEntity extends ThrownItemEntity {
         }
 
         if (this.target != null && this.target.isAlive() && this.cooldown <= 0) {
-            Vec3d targetPos = this.target.getPos().add(0, this.target.getHeight() * 3/ 4, 0);
+            Vec3d targetPos = this.target.getPos().add(0, this.target.getHeight() * 3 / 4, 0);
             Vec3d currentPos = this.getPos();
             Vec3d direction = targetPos.subtract(currentPos).normalize();
             this.setVelocity(direction.multiply(1).x, direction.multiply(1).y, direction.multiply(1).z, 1.0F, 1.0F); // Adjust speed here
-                                                                                                this.cooldown = 5;
+            this.cooldown = 5;
         }
         if (this.cooldown < 0) {
             this.cooldown = 5;
@@ -122,7 +124,7 @@ public class TinyGhastFireballEntity extends ThrownItemEntity {
             this.discard();
             return;
         }
-        
+
         LivingEntity entity = (LivingEntity) entityHitResult.getEntity();
         TinyGhastEntity owner = (TinyGhastEntity) this.getOwner();
 
@@ -143,16 +145,17 @@ public class TinyGhastFireballEntity extends ThrownItemEntity {
             DamageSource damageSource = this.getDamageSources().magic();/*.thrown(this, owner);*/
 
             if (isSnowball) {
-                if ( this.getWorld() instanceof ServerWorld) {
+                if (this.getWorld() instanceof ServerWorld) {
                     livingEntity.damage((ServerWorld) this.getWorld(), damageSource, 4.0f); // 2 heart
-                                                                                            }
+                    livingEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 80, 1));
+                }
                 Vec3d knockbackVec = this.getPos().subtract(livingEntity.getPos()).normalize();
                 livingEntity.takeKnockback(0.5, knockbackVec.x, knockbackVec.z);
             } else {
-                if ( this.getWorld() instanceof ServerWorld) {
+                if (this.getWorld() instanceof ServerWorld) {
                     livingEntity.damage((ServerWorld) this.getWorld(), damageSource, 1.0f); // Half a heart
-                                                                                                       livingEntity.setFireTicks(40); // set it on fire for 2 sec
-                                                                                            }
+                    livingEntity.setFireTicks(40); // set it on fire for 2 sec
+                }
             }
         }
         this.createVisualExplosion();

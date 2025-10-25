@@ -23,9 +23,9 @@ public class TinyGhastEntityRenderer extends GhastEntityRenderer {
         // scale the entity down
         matrixStack.push();
         matrixStack.scale(0.20f, 0.20f, 0.20f); // Makes the ghast model half the size
-        
+
         super.render(ghastEntityRenderState, matrixStack, vertexConsumerProvider, i);
-        
+
         matrixStack.pop();
     }
 }

@@ -11,6 +11,7 @@ import fish4terrisa.tinyghasts.entity.TinyGhastFireballEntity;
 
 import java.util.Arrays;
 import java.util.List;
+
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
@@ -41,6 +42,7 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.entity.Entity;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -56,13 +58,13 @@ public class TinyGhasts implements ModInitializer {
      *
      * The entity is registered under the SpawnGroup#CREATURE category.
      */
-		public static final String MOD_ID = "tiny-ghasts";
-		public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+    public static final String MOD_ID = "tiny-ghasts";
+    public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
     public static final EntityType<TinyGhastEntity> TINYGHAST = Registry.register(
             Registries.ENTITY_TYPE,
             Identifier.of("tiny-ghasts", "tinyghast"),
             FabricEntityTypeBuilder.create(SpawnGroup.CREATURE, TinyGhastEntity::new).dimensions(EntityDimensions.fixed(0.5f, 0.9f)).build(RegistryKey.
-of(RegistryKeys.ENTITY_TYPE, Identifier.of("tiny-ghasts", "tinyghast")))
+                    of(RegistryKeys.ENTITY_TYPE, Identifier.of("tiny-ghasts", "tinyghast")))
     );
     public static final EntityType<TinyGhastFireballEntity> TINYGHAST_FIREBALL = Registry.register(
             Registries.ENTITY_TYPE,
@@ -72,8 +74,8 @@ of(RegistryKeys.ENTITY_TYPE, Identifier.of("tiny-ghasts", "tinyghast")))
 
     @Override
     public void onInitialize() {
-			FabricDefaultAttributeRegistry.register(TINYGHAST, TinyGhastEntity.createMobAttributes());
-      PlayerEventHandler.register();
+        FabricDefaultAttributeRegistry.register(TINYGHAST, TinyGhastEntity.createMobAttributes());
+        PlayerEventHandler.register();
     }
 
 }

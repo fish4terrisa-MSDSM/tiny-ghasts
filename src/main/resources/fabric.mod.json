@@ -1,44 +1,44 @@
 {
-	"schemaVersion": 1,
-	"id": "tiny-ghasts",
-	"version": "${version}",
-	"name": "Tiny Ghasts",
-	"description": "A Mod added tiny cute ghasts",
-	"authors": [
-		"fish4terrisa-MSDSM"
-	],
-	"contact": {
-		"homepage": "https://github.com/fish4terrisa-MSDSM/tinyghasts",
-		"sources": "https://github.com/fish4terrisa-MSDSM/tinyghasts"
-	},
-	"license": "GPLv3",
-	"icon": "assets/tiny-ghasts/icon.png",
-	"environment": "*",
-	"entrypoints": {
-		"main": [
-			"fish4terrisa.tinyghasts.TinyGhasts"
-		],
-		"client": [
-			"fish4terrisa.tinyghasts.TinyGhastsClient"
-		],
-		"fabric-datagen": [
-			"fish4terrisa.tinyghasts.TinyGhastsDataGenerator"
-		]
-	},
-	"mixins": [
-		"tiny-ghasts.mixins.json",
-		{
-			"config": "tiny-ghasts.client.mixins.json",
-			"environment": "client"
-		}
-	],
-	"depends": {
-		"fabricloader": ">=0.16.14",
-		"minecraft": "~1.21.4",
-		"java": ">=21",
-		"fabric-api": "*"
-	},
-	"suggests": {
-		"another-mod": "*"
-	}
+  "schemaVersion": 1,
+  "id": "tiny-ghasts",
+  "version": "${version}",
+  "name": "Tiny Ghasts",
+  "description": "A Mod added tiny cute ghasts",
+  "authors": [
+    "fish4terrisa-MSDSM"
+  ],
+  "contact": {
+    "homepage": "https://github.com/fish4terrisa-MSDSM/tinyghasts",
+    "sources": "https://github.com/fish4terrisa-MSDSM/tinyghasts"
+  },
+  "license": "GPLv3",
+  "icon": "assets/tiny-ghasts/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "fish4terrisa.tinyghasts.TinyGhasts"
+    ],
+    "client": [
+      "fish4terrisa.tinyghasts.TinyGhastsClient"
+    ],
+    "fabric-datagen": [
+      "fish4terrisa.tinyghasts.TinyGhastsDataGenerator"
+    ]
+  },
+  "mixins": [
+    "tiny-ghasts.mixins.json",
+    {
+      "config": "tiny-ghasts.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.14",
+    "minecraft": "~1.21.4",
+    "java": ">=21",
+    "fabric-api": "*"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
 }

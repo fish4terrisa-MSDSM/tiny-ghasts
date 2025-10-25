@@ -29,9 +29,11 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.TeleportTarget;
 import net.minecraft.entity.ai.goal.*;
+
 import java.util.Optional;
 import java.util.UUID;
 import java.lang.reflect.Method;
+
 import org.jetbrains.annotations.Nullable;
 
 import fish4terrisa.tinyghasts.entity.ai.goal.TinyGhastFireballAttackGoal;
@@ -60,10 +62,11 @@ public class TinyGhastEntity extends GhastEntity {
         builder.add(OWNER_UUID, Optional.empty());
         builder.add(IS_DOWNED, false);
     }
+
     @Override
     protected void initGoals() {
-       this.goalSelector.clear(goal -> true);
-       this.targetSelector.clear(goal -> true);
+        this.goalSelector.clear(goal -> true);
+        this.targetSelector.clear(goal -> true);
 
         // AI Goals from lowest priority (bottom) to highest (top)
         this.targetSelector.add(1, new OwnerHurtTargetGoal(this));
@@ -133,15 +136,15 @@ public class TinyGhastEntity extends GhastEntity {
                     this.setPersistent();
                     if (this.getWorld() instanceof ServerWorld) {
                         ((ServerWorld) this.getWorld()).spawnParticles(
-                            ParticleTypes.HEART,
-                            this.getX(),
-                            this.getBodyY(0.5D),
-                            this.getZ(),
-                            7, // particle count
-                            this.random.nextGaussian() * 0.02D,
-                            this.random.nextGaussian() * 0.02D,
-                            this.random.nextGaussian() * 0.02D,
-                            0.1D // particle speed
+                                ParticleTypes.HEART,
+                                this.getX(),
+                                this.getBodyY(0.5D),
+                                this.getZ(),
+                                7, // particle count
+                                this.random.nextGaussian() * 0.02D,
+                                this.random.nextGaussian() * 0.02D,
+                                this.random.nextGaussian() * 0.02D,
+                                0.1D // particle speed
                         );
                     }
                 }
@@ -194,8 +197,7 @@ public class TinyGhastEntity extends GhastEntity {
             try {
                 this.dataTracker.set(OWNER_UUID, Optional.of(lazyEntityReference));
                 this.setTamed(true);
-            }
-            catch (Throwable throwable) {
+            } catch (Throwable throwable) {
                 this.setTamed(false);
             }
         } else {
@@ -209,7 +211,7 @@ public class TinyGhastEntity extends GhastEntity {
         //}
     }
 
-     public boolean isTamed() {
+    public boolean isTamed() {
         return this.dataTracker.get(IS_TAMED);
     }
 
@@ -236,7 +238,7 @@ public class TinyGhastEntity extends GhastEntity {
     public void setOwner(@Nullable LazyEntityReference<LivingEntity> owner) {
         this.dataTracker.set(OWNER_UUID, Optional.ofNullable(owner));
     }
-    
+
     @Override
     public boolean canTarget(LivingEntity target) {
         if (this.getOwner() != null) {
@@ -275,7 +277,8 @@ public class TinyGhastEntity extends GhastEntity {
 
     /**
      * Helper method to find a safe, non-solid block to teleport to near a target position.
-     * @param world The world to search in.
+     *
+     * @param world  The world to search in.
      * @param center The central position to search around.
      * @return A safe BlockPos, or null if none is found.
      */
@@ -300,12 +303,12 @@ public class TinyGhastEntity extends GhastEntity {
     public void onDeath(DamageSource damageSource) {
         if (this.isTamed() && !this.getWorld().isClient()) {
             // Instead of dying, enter the downed state
-                this.setHealth(this.getMaxHealth()); // Heal to full
-                this.setDowned(true);
-                this.getWorld().playSound(null, this.getBlockPos(), this.getDeathSound(), this.getSoundCategory(), 1.0f, 1.0f);
-                this.setInvisible(true);
-                this.setGlowing(true); // Adds the spectral border effect
-                this.setTarget(null); // Clear any active target
+            this.setHealth(this.getMaxHealth()); // Heal to full
+            this.setDowned(true);
+            this.getWorld().playSound(null, this.getBlockPos(), this.getDeathSound(), this.getSoundCategory(), 1.0f, 1.0f);
+            this.setInvisible(true);
+            this.setGlowing(true); // Adds the spectral border effect
+            this.setTarget(null); // Clear any active target
             return; // Prevents the damage and subsequent death
         }
         super.onDeath(damageSource);

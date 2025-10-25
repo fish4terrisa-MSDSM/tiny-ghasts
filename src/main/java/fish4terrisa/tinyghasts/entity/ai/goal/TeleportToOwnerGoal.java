@@ -11,6 +11,7 @@ import net.minecraft.util.math.BlockPos;
 public class TeleportToOwnerGoal extends Goal {
     private final TinyGhastEntity ghast;
     private final double teleportDistance;
+
     public TeleportToOwnerGoal(TinyGhastEntity ghast, double teleportDistance) {
         this.ghast = ghast;
         this.teleportDistance = teleportDistance;
@@ -40,7 +41,7 @@ public class TeleportToOwnerGoal extends Goal {
                 }
             }
             BlockPos ownerPos = owner.getBlockPos();
-            for(int i = 0; i < 10; ++i) {
+            for (int i = 0; i < 10; ++i) {
                 int j = this.ghast.getRandom().nextBetween(-4, 4);
                 int k = this.ghast.getRandom().nextBetween(-4, 4);
                 if (Math.abs(j) < 2 && Math.abs(k) < 2) continue;

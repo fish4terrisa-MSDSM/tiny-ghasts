@@ -11,6 +11,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.entity.LivingEntity;
 
 import java.util.UUID;
+
 public class PlayerEventHandler {
 
     public static void register() {
@@ -37,7 +38,7 @@ public class PlayerEventHandler {
      * Iterates through all TinyGhastEntity instances across all server worlds
      * and teleports any owned by the specified player to their location.
      *
-     * @param player The player to check for pet ownership.
+     * @param player      The player to check for pet ownership.
      * @param targetWorld The world the player is now in.
      */
     private static void teleportPetsToPlayer(LivingEntity owner, ServerWorld targetWorld) {

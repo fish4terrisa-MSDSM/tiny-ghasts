@@ -59,7 +59,7 @@ public class TinyGhastFireballAttackGoal extends Goal {
             double d = 64.0;
             double i = target.getX() - this.ghast.getX();
             double j = target.getZ() - this.ghast.getZ();
-            this.ghast.setYaw(-((float)MathHelper.atan2(i, j)) * 57.295776f);
+            this.ghast.setYaw(-((float) MathHelper.atan2(i, j)) * 57.295776f);
             this.ghast.bodyYaw = this.ghast.getYaw();
             this.attackCooldown--;
             World world = this.ghast.getWorld();

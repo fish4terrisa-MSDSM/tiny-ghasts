@@ -6,6 +6,7 @@ import net.minecraft.entity.ai.control.MoveControl;
 import net.minecraft.entity.ai.goal.Goal;
 
 import java.util.EnumSet;
+
 import net.minecraft.util.math.random.Random;
 
 public class TinyGhastFlyRandomlyGoal extends Goal {
@@ -41,6 +42,7 @@ public class TinyGhastFlyRandomlyGoal extends Goal {
 
     /**
      * Determines if the goal should continue to execute.
+     *
      * @return false, because this is a "one-shot" goal. It sets a destination and immediately yields control.
      */
     @Override

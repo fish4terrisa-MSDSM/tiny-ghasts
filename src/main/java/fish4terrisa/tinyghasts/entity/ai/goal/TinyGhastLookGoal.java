@@ -18,7 +18,7 @@ public class TinyGhastLookGoal extends Goal {
     private LivingEntity target;
     private int lookTime;
     private float randomYaw;
-    private float randomPitch; 
+    private float randomPitch;
     private boolean isLookingAtRandomDirection;
 
     public TinyGhastLookGoal(TinyGhastEntity ghast) {
@@ -76,14 +76,13 @@ public class TinyGhastLookGoal extends Goal {
             double d = 64.0;
             double e = livingEntity.getX() - this.ghast.getX();
             double f = livingEntity.getZ() - this.ghast.getZ();
-            this.ghast.setYaw(-((float)MathHelper.atan2(e, f)) * 57.295776f);
+            this.ghast.setYaw(-((float) MathHelper.atan2(e, f)) * 57.295776f);
             this.ghast.bodyYaw = this.ghast.getYaw();
-        }
-        else if (this.target != null) {
+        } else if (this.target != null) {
             double deltaX = this.target.getX() - this.ghast.getX();
             double deltaY = this.target.getEyeY() - this.ghast.getEyeY();
             double deltaZ = this.target.getZ() - this.ghast.getZ();
-            
+
             double horizontalDistance = Math.sqrt(deltaX * deltaX + deltaZ * deltaZ);
 
             this.randomYaw = (float) (MathHelper.atan2(deltaZ, deltaX) * (180.0D / Math.PI)) - 90.0F;
@@ -96,9 +95,9 @@ public class TinyGhastLookGoal extends Goal {
             this.isLookingAtRandomDirection = false;
         } else {
             Vec3d vec3d = this.ghast.getVelocity();
-            this.ghast.setYaw(-((float)MathHelper.atan2(vec3d.x, vec3d.z)) * 57.295776f);
+            this.ghast.setYaw(-((float) MathHelper.atan2(vec3d.x, vec3d.z)) * 57.295776f);
             this.ghast.bodyYaw = this.ghast.getYaw();
-                                                                                
+
         }
     }
 }

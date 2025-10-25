@@ -13,18 +13,19 @@ import net.minecraft.util.Identifier;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 
 public class TinyGhastsClient implements ClientModInitializer {
-	public static final EntityModelLayer TINYGHAST_LAYER = new EntityModelLayer(Identifier.of("tiny-ghasts", "tinyghast"), "main");
-	@Override
-	public void onInitializeClient() {
-		// This entrypoint is suitable for setting up client-specific logic, such as rendering.
-		EntityRendererRegistry.register(TinyGhasts.TINYGHAST, (context) -> {
+    public static final EntityModelLayer TINYGHAST_LAYER = new EntityModelLayer(Identifier.of("tiny-ghasts", "tinyghast"), "main");
+
+    @Override
+    public void onInitializeClient() {
+        // This entrypoint is suitable for setting up client-specific logic, such as rendering.
+        EntityRendererRegistry.register(TinyGhasts.TINYGHAST, (context) -> {
             return new TinyGhastEntityRenderer(context);
-		});
-		EntityRendererRegistry.register(TinyGhasts.TINYGHAST_FIREBALL, (context) -> {
-						return new FlyingItemEntityRenderer(context);
-		});
-		EntityModelLayerRegistry.registerModelLayer(TINYGHAST_LAYER, GhastEntityModel::getTexturedModelData);
+        });
+        EntityRendererRegistry.register(TinyGhasts.TINYGHAST_FIREBALL, (context) -> {
+            return new FlyingItemEntityRenderer(context);
+        });
+        EntityModelLayerRegistry.registerModelLayer(TINYGHAST_LAYER, GhastEntityModel::getTexturedModelData);
 
 
-	}
+    }
 }
