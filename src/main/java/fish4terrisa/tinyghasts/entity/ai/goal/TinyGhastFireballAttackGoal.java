@@ -55,44 +55,35 @@ public class TinyGhastFireballAttackGoal extends Goal {
             this.ghast.setShooting(false);
             return;
         }
-
         if (this.ghast.canSee(target)) {
+            double d = 64.0;
+            double i = target.getX() - this.ghast.getX();
+            double j = target.getZ() - this.ghast.getZ();
+            this.ghast.setYaw(-((float)MathHelper.atan2(i, j)) * 57.295776f);
+            this.ghast.bodyYaw = this.ghast.getYaw();
+            this.attackCooldown--;
+            World world = this.ghast.getWorld();
+            if (this.attackCooldown == 20 && !this.ghast.isSilent()) {
+                world.syncWorldEvent(null, 1015, this.ghast.getBlockPos(), 0);
+            }
             if (this.attackCooldown <= 0) {
-                this.attackCooldown = 20; // Fire every 20 ticks
-                World world = this.ghast.getWorld();
+                this.attackCooldown = 40; // Fire every 40 ticks
                 if (!world.isClient) {
-                    Vec3d rotation = this.ghast.getRotationVec(1.0F);
-                    double d = target.getX() - this.ghast.getX();
-                    double e = target.getBodyY(0.5) - this.ghast.getBodyY(0.5);
-                    double f = target.getZ() - this.ghast.getZ();
+                    double e = 4.0;
+                    Vec3d vec3d = this.ghast.getRotationVec(1.0f);
+                    double f = target.getX() - this.ghast.getX();
+                    double g = target.getBodyY(0.5) - this.ghast.getBodyY(0.5);
+                    double h = target.getZ() - this.ghast.getZ();
+                    if (!this.ghast.isSilent()) {
+                        world.syncWorldEvent(null, 1016, this.ghast.getBlockPos(), 0);
+                    }
 
-                    TinyGhastFireballEntity fireballEntity = new TinyGhastFireballEntity(world, this.ghast, target, d, e, f);
-                    fireballEntity.setPosition(this.ghast.getX() + rotation.x * 2.0D, this.ghast.getBodyY(0.5D) + 0.1D, this.ghast.getZ() + rotation.z * 2.0D);
+                    TinyGhastFireballEntity fireballEntity = new TinyGhastFireballEntity(world, this.ghast, target, f, g, h);
+                    fireballEntity.setPosition(this.ghast.getX() + vec3d.x * 2.0D, this.ghast.getBodyY(0.5D) + 0.1D, this.ghast.getZ() + vec3d.z * 2.0D);
                     world.spawnEntity(fireballEntity);
                 }
             }
         }
-        //this.ghast.getLookControl().lookAt(target, 10.0F, 10.0F);
-        double deltaX = target.getX() - this.ghast.getX();
-        double deltaY = target.getEyeY() - this.ghast.getEyeY();
-        double deltaZ = target.getZ() - this.ghast.getZ();
-
-        // Calculate the horizontal distance
-        double horizontalDistance = Math.sqrt(deltaX * deltaX + deltaZ * deltaZ);
-
-        // Calculate the required pitch (up/down rotation)
-        // atan2 gives the angle in radians, which we convert to degrees
-        float pitch = (float) (-(MathHelper.atan2(deltaY, horizontalDistance) * (180.0D / Math.PI)));
-
-        // Calculate the required yaw (left/right rotation)
-        float yaw = (float) (MathHelper.atan2(deltaZ, deltaX) * (180.0D / Math.PI)) - 90.0F;
-
-        // Set the ghast's rotation directly.
-        // Note: This results in an instantaneous, snappy turn.
-        this.ghast.setPitch(pitch);
-        this.ghast.setYaw(yaw);
-        this.ghast.setHeadYaw(yaw); // Ensure the head model also turns correctly
-        this.ghast.setShooting(this.attackCooldown < 10);
-        this.attackCooldown--;
+        this.ghast.setShooting(this.attackCooldown < 20);
     }
 }

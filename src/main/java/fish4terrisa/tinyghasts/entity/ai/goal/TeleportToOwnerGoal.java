@@ -41,12 +41,14 @@ public class TeleportToOwnerGoal extends Goal {
             }
             BlockPos ownerPos = owner.getBlockPos();
             for(int i = 0; i < 10; ++i) {
-                int j = this.ghast.getRandom().nextInt(16) - 8;
-                int k = this.ghast.getRandom().nextInt(16) - 8;
-                int l = this.ghast.getRandom().nextInt(8) - 4;
+                int j = this.ghast.getRandom().nextBetween(-4, 4);
+                int k = this.ghast.getRandom().nextBetween(-4, 4);
+                if (Math.abs(j) < 2 && Math.abs(k) < 2) continue;
+                int l = this.ghast.getRandom().nextBetween(-5, 5);
                 BlockPos targetPos = new BlockPos(ownerPos.getX() + j, ownerPos.getY() + l, ownerPos.getZ() + k);
                 if (this.ghast.getWorld().isAir(targetPos)) {
                     this.ghast.teleport(targetPos.getX() + 0.5, targetPos.getY() + 0.5, targetPos.getZ() + 0.5, false);
+                    this.ghast.getNavigation().stop();
                     return;
                 }
             }

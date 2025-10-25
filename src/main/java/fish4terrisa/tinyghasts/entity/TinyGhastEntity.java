@@ -88,6 +88,7 @@ public class TinyGhastEntity extends GhastEntity {
             // Instead of dying, enter the downed state
             this.setHealth(this.getMaxHealth()); // Heal to full
             this.setDowned(true);
+            this.getWorld().playSound(null, this.getBlockPos(), this.getDeathSound(), this.getSoundCategory(), 1.0f, 1.0f);
             this.setInvisible(true);
             this.setGlowing(true); // Adds the spectral border effect
             this.setTarget(null); // Clear any active target
@@ -301,6 +302,7 @@ public class TinyGhastEntity extends GhastEntity {
             // Instead of dying, enter the downed state
                 this.setHealth(this.getMaxHealth()); // Heal to full
                 this.setDowned(true);
+                this.getWorld().playSound(null, this.getBlockPos(), this.getDeathSound(), this.getSoundCategory(), 1.0f, 1.0f);
                 this.setInvisible(true);
                 this.setGlowing(true); // Adds the spectral border effect
                 this.setTarget(null); // Clear any active target
