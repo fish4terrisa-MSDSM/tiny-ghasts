@@ -1,6 +1,7 @@
 package fish4terrisa.tinyghasts.renderer;
 
 import fish4terrisa.tinyghasts.entity.TinyGhastEntity;
+
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.GhastEntityRenderer;

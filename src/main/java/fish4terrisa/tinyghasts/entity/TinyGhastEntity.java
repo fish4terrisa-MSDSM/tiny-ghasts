@@ -1,5 +1,8 @@
 package fish4terrisa.tinyghasts.entity;
 
+import fish4terrisa.tinyghasts.block.entity.TinyGhastShelterBlockEntity;
+import fish4terrisa.tinyghasts.TinyGhasts;
+
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.mob.GhastEntity;
 import net.minecraft.world.World;
@@ -21,7 +24,9 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.dynamic.Codecs;
 import net.minecraft.network.codec.PacketCodecs;
+import net.minecraft.entity.LazyEntityReference;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.TeleportTarget;
 import net.minecraft.entity.ai.goal.*;
@@ -40,8 +45,9 @@ import fish4terrisa.tinyghasts.entity.ai.goal.OwnerHurtTargetGoal;
 import fish4terrisa.tinyghasts.entity.ai.control.TinyGhastMoveControl;
 
 public class TinyGhastEntity extends GhastEntity {
-    protected static final TrackedData<Optional<UUID>> OWNER_UUID = DataTracker.registerData(TinyGhastEntity.class, TrackedDataHandler.create(Uuids.PACKET_CODEC.collect(PacketCodecs::optional)));
+    protected static final TrackedData<Optional<LazyEntityReference<LivingEntity>>> OWNER_UUID = DataTracker.registerData(TinyGhastEntity.class, TrackedDataHandlerRegistry.LAZY_ENTITY_REFERENCE);
     protected static final TrackedData<Boolean> IS_TAMED = DataTracker.registerData(TinyGhastEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+    protected static final TrackedData<Boolean> IS_DOWNED = DataTracker.registerData(TinyGhastEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 
     public TinyGhastEntity(EntityType<? extends GhastEntity> entityType, World world) {
         super(entityType, world);
@@ -53,6 +59,7 @@ public class TinyGhastEntity extends GhastEntity {
         super.initDataTracker(builder);
         builder.add(IS_TAMED, false);
         builder.add(OWNER_UUID, Optional.empty());
+        builder.add(IS_DOWNED, false);
     }
     @Override
     protected void initGoals() {
@@ -71,8 +78,48 @@ public class TinyGhastEntity extends GhastEntity {
     }
 
     @Override
+    public boolean damage(ServerWorld world, DamageSource source, float amount) {
+        // Prevent any damage if the entity is in the downed state
+        if (this.isDowned()) {
+            return false;
+        }
+
+        // Intercept what would be a fatal blow for a tamed Ghast
+        if (this.isTamed() && (this.getHealth() - amount <= 0)) {
+            // Instead of dying, enter the downed state
+            this.setHealth(this.getMaxHealth()); // Heal to full
+            this.setDowned(true);
+            this.setInvisible(true);
+            this.setGlowing(true); // Adds the spectral border effect
+            this.setTarget(null); // Clear any active target
+            return false; // Prevents the damage and subsequent death
+        }
+
+        return super.damage(world, source, amount);
+    }
+
+    @Nullable
+    public LazyEntityReference<LivingEntity> getOwnerReference() {
+        return this.dataTracker.get(OWNER_UUID).orElse(null);
+    }
+
+    @Override
     public ActionResult interactMob(PlayerEntity player, Hand hand) {
         ItemStack itemStack = player.getStackInHand(hand);
+        if (this.isDowned() && this.isOwner(player) && itemStack.getItem() == Items.LAVA_BUCKET) {
+            if (!this.getWorld().isClient) {
+                this.setDowned(false);
+                this.setInvisible(false);
+                this.setGlowing(false);
+            }
+
+            // Replace lava bucket with an empty bucket if not in creative mode
+            if (!player.getAbilities().creativeMode) {
+                player.setStackInHand(hand, new ItemStack(Items.BUCKET));
+            }
+
+            return ActionResult.SUCCESS;
+        }
         if (!this.isTamed() && itemStack.getItem() == Items.CAKE) {
             if (!player.getAbilities().creativeMode) {
                 itemStack.decrement(1);
@@ -80,6 +127,7 @@ public class TinyGhastEntity extends GhastEntity {
             if (!this.getWorld().isClient) {
                 if (this.random.nextInt(3) == 0) {
                     this.setOwner(player);
+                    this.setTamed(true);
                     this.navigation.stop();
                     this.setTarget(null);
                     this.setPersistent();
@@ -105,71 +153,88 @@ public class TinyGhastEntity extends GhastEntity {
     }
 
     @Override
+    public boolean isImmobile() {
+        // This effectively freezes the entity in place while downed, preventing AI movement.
+        return super.isImmobile() || this.isDowned();
+    }
+
+    @Override
+    public boolean isInvulnerableTo(ServerWorld world, DamageSource source) {
+        // Makes the entity invulnerable while downed, except for things like /kill
+        return this.isDowned() || super.isInvulnerableTo(world, source);
+    }
+
+    public boolean isDowned() {
+        return this.dataTracker.get(IS_DOWNED);
+    }
+
+    public void setDowned(boolean downed) {
+        this.dataTracker.set(IS_DOWNED, downed);
+    }
+
+
+    @Override
     public void writeCustomDataToNbt(NbtCompound nbt) {
         super.writeCustomDataToNbt(nbt);
+        LazyEntityReference<LivingEntity> lazyEntityReference = this.getOwnerReference();
         nbt.putBoolean("IsTamed", this.isTamed());
-        if (this.getOwnerUuid().isPresent()) {
-            nbt.put("Owner", Uuids.CODEC, this.getOwnerUuid().get());
+        if (lazyEntityReference != null) {
+            lazyEntityReference.writeNbt(nbt, "Owner");
         }
+        //if (this.getOwnerUuid().isPresent()) {
+        //    nbt.put("Owner", Uuids.CODEC, this.getOwnerUuid().get());
+        //}
     }
 
     @Override
     public void readCustomDataFromNbt(NbtCompound nbt) {
         super.readCustomDataFromNbt(nbt);
-        this.setTamed(nbt.getBoolean("IsTamed").orElse(false));
-        UUID ownerUuid = nbt.get("Owner", Uuids.CODEC).orElse(null);
-        if (ownerUuid != null) {
-            this.setOwnerUuid(Optional.of(ownerUuid));
+        LazyEntityReference lazyEntityReference = LazyEntityReference.fromNbtOrPlayerName(nbt, "Owner", this.getWorld());
+        if (lazyEntityReference != null) {
+            try {
+                this.dataTracker.set(OWNER_UUID, Optional.of(lazyEntityReference));
+                this.setTamed(true);
+            }
+            catch (Throwable throwable) {
+                this.setTamed(false);
+            }
+        } else {
+            this.dataTracker.set(OWNER_UUID, Optional.empty());
+            this.setTamed(false);
         }
+        //this.setTamed(nbt.getBoolean("IsTamed").orElse(false));
+        //UUID ownerUuid = nbt.get("Owner", Uuids.CODEC).orElse(null);
+        //if (ownerUuid != null) {
+        //    this.setOwnerUuid(Optional.of(ownerUuid));
+        //}
     }
 
      public boolean isTamed() {
         return this.dataTracker.get(IS_TAMED);
     }
 
+    public boolean isOwner(LivingEntity entity) {
+        return entity == this.getOwner();
+    }
+
     public void setTamed(boolean tamed) {
         this.dataTracker.set(IS_TAMED, tamed);
     }
 
-    public Optional<UUID> getOwnerUuid() {
-        return this.dataTracker.get(OWNER_UUID);
-    }
-
-    public void setOwnerUuid(Optional<UUID> uuid) {
-        this.dataTracker.set(OWNER_UUID, uuid);
-    }
-
-    /**
-     * Gets the owner of this tamed entity.
-     * This method is capable of finding the owner even across different dimensions.
-     *
-     * @return The owner LivingEntity, or null if not found or not owned.
-     */
     public LivingEntity getOwner() {
-        try {
-            Optional<UUID> uuidOptional = this.getOwnerUuid();
-            if (uuidOptional.isEmpty()) {
-                return null; // No owner UUID is present.
-            }
-            UUID ownerUuid = uuidOptional.get();
-            MinecraftServer server = this.getWorld().getServer();
-            // On the server, we can get the player from the player manager, which is aware of all dimensions.
-            if (server != null) {
-                return server.getPlayerManager().getPlayer(ownerUuid);
-            }
-            // On the client, we can only check the current world. This is a fallback.
-            else {
-                return this.getWorld().getPlayerByUuid(ownerUuid);
-            }
-        } catch (IllegalArgumentException e) {
-            // This can happen if the UUID is somehow malformed.
-            return null;
-        }
+        return LazyEntityReference.resolve(this.getOwnerReference(), this.getWorld(), LivingEntity.class);
     }
 
-    public void setOwner(PlayerEntity player) {
-        this.setTamed(true);
-        this.setOwnerUuid(Optional.of(player.getUuid()));
+    //public void setOwner(PlayerEntity player) {
+    //    this.setTamed(true);
+    //    this.setOwnerUuid(Optional.of(player.getUuid()));
+    //}
+    public void setOwner(@Nullable LivingEntity owner) {
+        this.dataTracker.set(OWNER_UUID, Optional.ofNullable(owner).map(LazyEntityReference::new));
+    }
+
+    public void setOwner(@Nullable LazyEntityReference<LivingEntity> owner) {
+        this.dataTracker.set(OWNER_UUID, Optional.ofNullable(owner));
     }
     
     @Override
@@ -231,5 +296,18 @@ public class TinyGhastEntity extends GhastEntity {
         return null;
     }
 
+    @Override
+    public void onDeath(DamageSource damageSource) {
+        if (this.isTamed() && !this.getWorld().isClient()) {
+            // Instead of dying, enter the downed state
+                this.setHealth(this.getMaxHealth()); // Heal to full
+                this.setDowned(true);
+                this.setInvisible(true);
+                this.setGlowing(true); // Adds the spectral border effect
+                this.setTarget(null); // Clear any active target
+            return; // Prevents the damage and subsequent death
+        }
+        super.onDeath(damageSource);
+    }
 
 }

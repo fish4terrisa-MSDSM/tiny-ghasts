@@ -8,6 +8,7 @@ import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.entity.LivingEntity;
 
 import java.util.UUID;
 public class PlayerEventHandler {
@@ -39,9 +40,8 @@ public class PlayerEventHandler {
      * @param player The player to check for pet ownership.
      * @param targetWorld The world the player is now in.
      */
-    private static void teleportPetsToPlayer(ServerPlayerEntity owner, ServerWorld targetWorld) {
+    private static void teleportPetsToPlayer(LivingEntity owner, ServerWorld targetWorld) {
         if (owner.getServer() == null) return;
-        UUID ownerUuid = owner.getUuid();
 
         // Iterate through all loaded worlds on the server.
         for (ServerWorld world : owner.getServer().getWorlds()) {
@@ -52,7 +52,7 @@ public class PlayerEventHandler {
                     TinyGhastEntity ghast = (TinyGhastEntity) entity;
 
                     // Check if its owner's UUID matches the player who triggered the event.
-                    if (ghast.getOwnerUuid().isPresent() && ghast.getOwnerUuid().get().equals(ownerUuid)) {
+                    if (ghast.isTamed() && ghast.isOwner(owner)) {
                         // We found a pet! Teleport it to the owner's new world.
                         ghast.teleportToOwner(targetWorld);
                     }
