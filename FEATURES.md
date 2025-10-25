@@ -1,6 +1,0 @@
- - [] use the ghast render and sound and behavior
- - [] fire fireball and snowball, fireball deal more damage and snowball deal slow and weak potion effect. the projectile wont destory blocks
- - [] immune to fire
- - [] follow owner, wandering around when no hostile mob, attack hostile mob in range, tp to owner when too far
- - [] on death(not real, health to zero), replace a block to a glass block contained a float ghast, use lava busket to revive(the busket convert to normal busket)
- - [] give the owner a compass to the location of the block when dead
