@@ -1,6 +1,5 @@
 package fish4terrisa.tinyghasts.entity;
 
-import fish4terrisa.tinyghasts.block.entity.TinyGhastShelterBlockEntity;
 import fish4terrisa.tinyghasts.TinyGhasts;
 
 import net.minecraft.entity.EntityType;

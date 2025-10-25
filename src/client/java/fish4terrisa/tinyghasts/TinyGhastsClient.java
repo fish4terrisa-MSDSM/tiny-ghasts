@@ -2,7 +2,6 @@ package fish4terrisa.tinyghasts;
 
 import net.fabricmc.api.ClientModInitializer;
 import fish4terrisa.tinyghasts.renderer.TinyGhastEntityRenderer;
-import fish4terrisa.tinyghasts.renderer.TinyGhastShelterBlockEntityRenderer;
 import net.minecraft.client.render.entity.FlyingItemEntityRenderer;
 import net.fabricmc.api.Environment;
 import net.fabricmc.api.EnvType;
@@ -26,7 +25,6 @@ public class TinyGhastsClient implements ClientModInitializer {
 		});
 		EntityModelLayerRegistry.registerModelLayer(TINYGHAST_LAYER, GhastEntityModel::getTexturedModelData);
 
-		BlockEntityRendererFactories.register(TinyGhasts.TINYGHAST_SHELTER_BE, TinyGhastShelterBlockEntityRenderer::new);
 
 	}
 }
