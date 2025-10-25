@@ -67,7 +67,7 @@ public class TinyGhastFireballAttackGoal extends Goal {
                 world.syncWorldEvent(null, 1015, this.ghast.getBlockPos(), 0);
             }
             if (this.attackCooldown <= 0) {
-                this.attackCooldown = 80; // Fire every 40 ticks
+                this.attackCooldown = 80; // Fire every 80 ticks
                 if (!world.isClient) {
                     double e = 4.0;
                     Vec3d vec3d = this.ghast.getRotationVec(1.0f);
