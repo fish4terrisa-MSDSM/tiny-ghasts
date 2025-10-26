@@ -50,6 +50,8 @@ public class TinyGhastEntity extends GhastEntity {
     protected static final TrackedData<Boolean> IS_TAMED = DataTracker.registerData(TinyGhastEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     protected static final TrackedData<Boolean> IS_DOWNED = DataTracker.registerData(TinyGhastEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 
+    private int ticksSinceLastHit = 0;
+
     public TinyGhastEntity(EntityType<? extends GhastEntity> entityType, World world) {
         super(entityType, world);
         this.moveControl = new TinyGhastMoveControl(this);
@@ -81,6 +83,7 @@ public class TinyGhastEntity extends GhastEntity {
 
     @Override
     public boolean damage(ServerWorld world, DamageSource source, float amount) {
+        this.ticksSinceLastHit = 0;
         // Prevent any damage if the entity is in the downed state
         if (this.isDowned()) {
             return false;
@@ -99,6 +102,29 @@ public class TinyGhastEntity extends GhastEntity {
         }
 
         return super.damage(world, source, amount);
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+
+        if (this.ticksSinceLastHit <= 100) {
+            this.ticksSinceLastHit++;
+        }
+
+        // Regeneration logic should only run on the server
+        if (!this.getWorld().isClient()) {
+            // Conditions: Tamed, not downed, and out of combat for 5 seconds (100 ticks)
+            if (!this.isDowned() && this.ticksSinceLastHit >= 100) {
+                // Check if health is below max
+                if (this.getHealth() < this.getMaxHealth()) {
+                    // Every 40 ticks (2 seconds), heal 1 heart (2 health points)
+                    if (this.age % 40 == 0) {
+                        this.heal(2.0f);
+                    }
+                }
+            }
+        }
     }
 
     @Nullable
