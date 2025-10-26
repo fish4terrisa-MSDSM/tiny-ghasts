@@ -8,6 +8,9 @@ This mod added cute tiny (sad) ghasts that'll fight for you!
  - If you are too far away from it or in another dimension, it'll teleport to you, so no need to worry about it getting lost!
  - All tiny ghasts uses the same renderer as vanillia ghasts, so feel free to apply any resource packs and the effect will apply to tiny ghasts too!(Personally I would recommand [Cute Mob Models RP](https://www.curseforge.com/minecraft/texture-packs/cute-mob-models-resource-pack) and the hit box is adjusted to fit it's model as well!)
 
+## Supported Version
+Currently only 1.21.5 is officially supported! May add support for later version!
+
 ## Todos
  - Code cleaning!
  - Naturally Spawning: Currently tiny ghasts can only be summoned using commands, will add a way for them to be naturally spawned in near future!(or even multiple ways!)
