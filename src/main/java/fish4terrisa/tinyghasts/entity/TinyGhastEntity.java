@@ -193,6 +193,11 @@ public class TinyGhastEntity extends GhastEntity {
         return this.isDowned() || super.isInvulnerableTo(world, source);
     }
 
+    @Override
+    protected boolean isDisallowedInPeaceful() {
+        return false;
+    }
+
     public boolean isDowned() {
         return this.dataTracker.get(IS_DOWNED);
     }
