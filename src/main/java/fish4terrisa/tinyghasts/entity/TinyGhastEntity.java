@@ -198,6 +198,14 @@ public class TinyGhastEntity extends GhastEntity {
         return false;
     }
 
+    @Override
+    public boolean shouldRender(double distance) {
+        if (this.isTamed()) {
+            return true;
+        }
+        return super.shouldRender(distance);
+    }
+
     public boolean isDowned() {
         return this.dataTracker.get(IS_DOWNED);
     }
