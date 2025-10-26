@@ -25,10 +25,13 @@ import net.minecraft.util.dynamic.Codecs;
 import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.entity.LazyEntityReference;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.TeleportTarget;
+import net.minecraft.entity.mob.Monster;
 import net.minecraft.entity.ai.goal.*;
+import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -74,7 +77,8 @@ public class TinyGhastEntity extends GhastEntity {
         this.targetSelector.add(1, new OwnerHurtTargetGoal(this));
         this.targetSelector.add(2, new OwnerHurtByTargetGoal(this));
         this.targetSelector.add(3, new TinyGhastRevengeGoal(this));
-        this.goalSelector.add(4, new TeleportToOwnerGoal(this, 15));
+        this.targetSelector.add(4, new ActiveTargetGoal<MobEntity>(this, MobEntity.class, 5, false, false, this::shouldAttack));
+        this.goalSelector.add(5, new TeleportToOwnerGoal(this, 15));
         this.goalSelector.add(6, new TinyGhastFlyRandomlyGoal(this));
         this.goalSelector.add(7, new TinyGhastLookGoal(this));
         this.goalSelector.add(7, new TinyGhastFireballAttackGoal(this));
@@ -233,6 +237,7 @@ public class TinyGhastEntity extends GhastEntity {
         super.writeCustomDataToNbt(nbt);
         LazyEntityReference<LivingEntity> lazyEntityReference = this.getOwnerReference();
         nbt.putBoolean("IsTamed", this.isTamed());
+        nbt.putBoolean("IsDowned", this.isDowned());
         if (lazyEntityReference != null) {
             lazyEntityReference.writeNbt(nbt, "Owner");
         }
@@ -256,11 +261,22 @@ public class TinyGhastEntity extends GhastEntity {
             this.dataTracker.set(OWNER_UUID, Optional.empty());
             this.setTamed(false);
         }
-        //this.setTamed(nbt.getBoolean("IsTamed").orElse(false));
+        this.setTamed(nbt.getBoolean("IsTamed").orElse(false));
+        this.setDowned(nbt.getBoolean("IsDowned").orElse(false));
         //UUID ownerUuid = nbt.get("Owner", Uuids.CODEC).orElse(null);
         //if (ownerUuid != null) {
         //    this.setOwnerUuid(Optional.of(ownerUuid));
         //}
+    }
+    
+    public boolean shouldAttack(LivingEntity entity, ServerWorld world) {
+        if (!this.canTarget(entity)) {
+            return false;
+        }
+        if (entity instanceof Monster && !(entity instanceof TinyGhastEntity)) {
+            return true;
+        }
+        return false;
     }
 
     public boolean isTamed() {
