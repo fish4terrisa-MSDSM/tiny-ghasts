@@ -75,9 +75,9 @@ public class TinyGhastEntity extends GhastEntity {
         this.targetSelector.add(2, new OwnerHurtByTargetGoal(this));
         this.targetSelector.add(3, new TinyGhastRevengeGoal(this));
         this.goalSelector.add(4, new TeleportToOwnerGoal(this, 15));
-        this.goalSelector.add(5, new TinyGhastFireballAttackGoal(this));
         this.goalSelector.add(6, new TinyGhastFlyRandomlyGoal(this));
         this.goalSelector.add(7, new TinyGhastLookGoal(this));
+        this.goalSelector.add(7, new TinyGhastFireballAttackGoal(this));
 
     }
 
@@ -94,6 +94,7 @@ public class TinyGhastEntity extends GhastEntity {
             // Instead of dying, enter the downed state
             this.setHealth(this.getMaxHealth()); // Heal to full
             this.setDowned(true);
+            this.setAiDisabled(true);
             this.getWorld().playSound(null, this.getBlockPos(), this.getDeathSound(), this.getSoundCategory(), 1.0f, 1.0f);
             this.setInvisible(true);
             this.setGlowing(true); // Adds the spectral border effect
@@ -107,6 +108,17 @@ public class TinyGhastEntity extends GhastEntity {
     @Override
     public void tick() {
         super.tick();
+        if (this.isDowned()) {
+            this.setTarget(null);
+            this.setInvisible(true);
+            this.setAiDisabled(true);
+            this.setGlowing(true);
+        } else {
+            this.setInvisible(false);
+            this.setAiDisabled(false);
+            this.setGlowing(false);
+        }
+
 
         if (this.ticksSinceLastHit <= 100) {
             this.ticksSinceLastHit++;
@@ -140,6 +152,7 @@ public class TinyGhastEntity extends GhastEntity {
                 this.setDowned(false);
                 this.setInvisible(false);
                 this.setGlowing(false);
+                this.setAiDisabled(false);
             }
 
             // Replace lava bucket with an empty bucket if not in creative mode
@@ -344,6 +357,7 @@ public class TinyGhastEntity extends GhastEntity {
             // Instead of dying, enter the downed state
             this.setHealth(this.getMaxHealth()); // Heal to full
             this.setDowned(true);
+            this.setAiDisabled(true);
             this.getWorld().playSound(null, this.getBlockPos(), this.getDeathSound(), this.getSoundCategory(), 1.0f, 1.0f);
             this.setInvisible(true);
             this.setGlowing(true); // Adds the spectral border effect

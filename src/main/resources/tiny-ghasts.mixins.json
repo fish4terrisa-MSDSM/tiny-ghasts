@@ -3,7 +3,9 @@
   "package": "fish4terrisa.tinyghasts.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "ExampleMixin"
+    "TinyGhastsIronGolemMixin",
+    "TinyGhastsMobEntityMixin",
+    "TinyGhastsSnowGolemMixin"
   ],
   "injectors": {
     "defaultRequire": 1

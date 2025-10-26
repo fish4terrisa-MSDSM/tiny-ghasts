@@ -18,7 +18,6 @@ public class TinyGhastFireballAttackGoal extends Goal {
 
     public TinyGhastFireballAttackGoal(TinyGhastEntity ghast) {
         this.ghast = ghast;
-        this.setControls(EnumSet.of(Control.MOVE, Control.LOOK));
     }
 
     @Override
@@ -56,11 +55,6 @@ public class TinyGhastFireballAttackGoal extends Goal {
             return;
         }
         if (this.ghast.canSee(target)) {
-            double d = 64.0;
-            double i = target.getX() - this.ghast.getX();
-            double j = target.getZ() - this.ghast.getZ();
-            this.ghast.setYaw(-((float) MathHelper.atan2(i, j)) * 57.295776f);
-            this.ghast.bodyYaw = this.ghast.getYaw();
             this.attackCooldown--;
             World world = this.ghast.getWorld();
             if (this.attackCooldown == 40 && !this.ghast.isSilent()) {
@@ -84,6 +78,6 @@ public class TinyGhastFireballAttackGoal extends Goal {
                 }
             }
         }
-        this.ghast.setShooting(this.attackCooldown < 20);
+        this.ghast.setShooting(this.attackCooldown < 10);
     }
 }
