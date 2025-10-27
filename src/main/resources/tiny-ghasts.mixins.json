@@ -5,7 +5,10 @@
   "mixins": [
     "TinyGhastsIronGolemMixin",
     "TinyGhastsMobEntityMixin",
-    "TinyGhastsSnowGolemMixin"
+    "TinyGhastsSnowGolemMixin",
+    "TinyGhastEntityUnloadListener",
+    "TinyGhastEntityAccessor",
+    "TinyGhastSchema1460"
   ],
   "injectors": {
     "defaultRequire": 1

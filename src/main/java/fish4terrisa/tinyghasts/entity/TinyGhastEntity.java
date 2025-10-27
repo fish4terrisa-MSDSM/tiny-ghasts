@@ -285,6 +285,9 @@ public class TinyGhastEntity extends GhastEntity {
     }
 
     public boolean isOwner(LivingEntity entity) {
+        if (!this.isTamed()) {
+            return false;
+        }
         return entity == this.getOwner();
     }
 
