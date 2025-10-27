@@ -12,6 +12,10 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.data.TrackedDataHandler;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.mob.ZombifiedPiglinEntity;
+import net.minecraft.entity.mob.PiglinEntity;
+import net.minecraft.entity.mob.EndermanEntity;
+import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
@@ -263,7 +267,14 @@ public class TinyGhastEntity extends GhastEntity {
         if (!this.canTarget(entity)) {
             return false;
         }
-        if (entity instanceof Monster && !(entity instanceof TinyGhastEntity)) {
+        if (entity instanceof TameableEntity) {
+            if (((TameableEntity) entity).isTamed()) {
+                if (this.getOwner() == ((TameableEntity) entity).getOwner()) {
+                    return false;
+                }
+            }
+        }
+        if (entity instanceof Monster && !(entity instanceof TinyGhastEntity) && !(entity instanceof EndermanEntity) && !(entity instanceof TameableEntity) && !(entity instanceof PiglinEntity) && !(entity instanceof ZombifiedPiglinEntity)) {
             return true;
         }
         return false;
