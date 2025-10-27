@@ -98,10 +98,7 @@ public class TinyGhastEntity extends GhastEntity {
             // Instead of dying, enter the downed state
             this.setHealth(this.getMaxHealth()); // Heal to full
             this.setDowned(true);
-            this.setAiDisabled(true);
             this.getWorld().playSound(null, this.getBlockPos(), this.getDeathSound(), this.getSoundCategory(), 1.0f, 1.0f);
-            this.setInvisible(true);
-            this.setGlowing(true); // Adds the spectral border effect
             this.setTarget(null); // Clear any active target
             return false; // Prevents the damage and subsequent death
         }
@@ -114,13 +111,9 @@ public class TinyGhastEntity extends GhastEntity {
         super.tick();
         if (this.isDowned()) {
             this.setTarget(null);
-            this.setInvisible(true);
-            this.setAiDisabled(true);
-            this.setGlowing(true);
+            this.setDownStatus(true);
         } else {
-            this.setInvisible(false);
-            this.setAiDisabled(false);
-            this.setGlowing(false);
+            this.setDownStatus(false);
         }
 
 
@@ -154,9 +147,6 @@ public class TinyGhastEntity extends GhastEntity {
         if (this.isDowned() && this.isOwner(player) && itemStack.getItem() == Items.LAVA_BUCKET) {
             if (!this.getWorld().isClient) {
                 this.setDowned(false);
-                this.setInvisible(false);
-                this.setGlowing(false);
-                this.setAiDisabled(false);
             }
 
             // Replace lava bucket with an empty bucket if not in creative mode
@@ -229,8 +219,14 @@ public class TinyGhastEntity extends GhastEntity {
 
     public void setDowned(boolean downed) {
         this.dataTracker.set(IS_DOWNED, downed);
+        this.setDownStatus(downed);
     }
 
+    public void setDownStatus(boolean status) {
+        this.setInvisible(status);
+        this.setAiDisabled(status);
+        this.setGlowing(status);
+    }
 
     @Override
     public void writeCustomDataToNbt(NbtCompound nbt) {
@@ -373,10 +369,7 @@ public class TinyGhastEntity extends GhastEntity {
             // Instead of dying, enter the downed state
             this.setHealth(this.getMaxHealth()); // Heal to full
             this.setDowned(true);
-            this.setAiDisabled(true);
             this.getWorld().playSound(null, this.getBlockPos(), this.getDeathSound(), this.getSoundCategory(), 1.0f, 1.0f);
-            this.setInvisible(true);
-            this.setGlowing(true); // Adds the spectral border effect
             this.setTarget(null); // Clear any active target
             return; // Prevents the damage and subsequent death
         }
