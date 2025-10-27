@@ -57,11 +57,11 @@ public class TinyGhastFireballAttackGoal extends Goal {
         if (this.ghast.canSee(target)) {
             this.attackCooldown--;
             World world = this.ghast.getWorld();
-            if (this.attackCooldown == 40 && !this.ghast.isSilent()) {
+            if (this.attackCooldown == 20 && !this.ghast.isSilent()) {
                 world.syncWorldEvent(null, 1015, this.ghast.getBlockPos(), 0);
             }
             if (this.attackCooldown <= 0) {
-                this.attackCooldown = 80; // Fire every 80 ticks
+                this.attackCooldown = 40; // Fire every 40 ticks
                 if (!world.isClient) {
                     double e = 4.0;
                     Vec3d vec3d = this.ghast.getRotationVec(1.0f);

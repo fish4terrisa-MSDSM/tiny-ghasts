@@ -4,6 +4,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.FlyingItemEntity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
@@ -139,7 +140,12 @@ public class TinyGhastFireballEntity extends ThrownItemEntity {
         if (entity instanceof LivingEntity) {
             LivingEntity livingEntity = (LivingEntity) entity;
             boolean isSnowball = this.dataTracker.get(IS_SNOWBALL);
-            DamageSource damageSource = this.getDamageSources().magic();/*.thrown(this, owner);*/
+            DamageSource damageSource = this.getDamageSources().magic();
+            if (owner instanceof TinyGhastEntity) {
+                if (owner.getOwner() instanceof PlayerEntity) {
+                    damageSource = this.getDamageSources().playerAttack((PlayerEntity) (owner.getOwner()));/*.thrown(this, owner);*/
+                }
+            }
 
             if (isSnowball) {
                 if (this.getWorld() instanceof ServerWorld) {

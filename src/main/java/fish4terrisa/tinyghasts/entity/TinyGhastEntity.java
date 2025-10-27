@@ -87,6 +87,9 @@ public class TinyGhastEntity extends GhastEntity {
 
     @Override
     public boolean damage(ServerWorld world, DamageSource source, float amount) {
+        if (this.isInvulnerableTo(world, source)) {
+            return false;
+        }
         this.ticksSinceLastHit = 0;
         // Prevent any damage if the entity is in the downed state
         if (this.isDowned()) {
