@@ -36,6 +36,7 @@ import net.minecraft.world.TeleportTarget;
 import net.minecraft.entity.mob.Monster;
 import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
+import java.util.function.Predicate;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -350,6 +351,9 @@ public class TinyGhastEntity extends GhastEntity {
      * @return A safe BlockPos, or null if none is found.
      */
     private BlockPos findSafeTeleportPosition(ServerWorld world, BlockPos center) {
+        Predicate<BlockPos> spotValidator;
+        spotValidator = (pos) -> world.getBlockState(pos).isAir() &&
+                        !world.getBlockState(pos.down()).getCollisionShape(world, pos.down()).isEmpty();
         for (int i = 0; i < 16; ++i) {
             // Search in a 7x7x5 area around the player
             int x = center.getX() + this.random.nextInt(7) - 3;
@@ -358,7 +362,7 @@ public class TinyGhastEntity extends GhastEntity {
 
             BlockPos.Mutable testPos = new BlockPos.Mutable(x, y, z);
 
-            if (world.isAir(testPos)) {
+            if (spotValidator.test(testPos)) {
                 return testPos.toImmutable();
             }
         }
