@@ -4,3 +4,4 @@
  - Fixed the death logic
  - Now Iron Golems and Snow Golems wont attack tiny ghasts.
  - Now tiny ghasts will actively attack hostile mobs.
+ - Tiny Ghasts now will teleport to it's owner before the chunk it's in got unloaded.
