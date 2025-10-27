@@ -223,6 +223,11 @@ public class TinyGhastEntity extends GhastEntity {
         return this.dataTracker.get(IS_DOWNED);
     }
 
+    @Override
+    public boolean isFireImmune() {
+        return true;
+    }
+
     public void setDowned(boolean downed) {
         this.dataTracker.set(IS_DOWNED, downed);
         this.setDownStatus(downed);
@@ -354,7 +359,7 @@ public class TinyGhastEntity extends GhastEntity {
         Predicate<BlockPos> spotValidator;
         spotValidator = (pos) -> world.getBlockState(pos).isAir() &&
                         !world.getBlockState(pos.down()).getCollisionShape(world, pos.down()).isEmpty();
-        for (int i = 0; i < 16; ++i) {
+        for (int i = 0; i < 8; ++i) {
             // Search in a 7x7x5 area around the player
             int x = center.getX() + this.random.nextInt(7) - 3;
             int z = center.getZ() + this.random.nextInt(7) - 3;
