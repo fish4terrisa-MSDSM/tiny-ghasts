@@ -39,7 +39,6 @@ import fish4terrisa.tinyghasts.TinyGhasts;
 
 public class TinyGhastFireballEntity extends ThrownItemEntity {
 
-    // Data tracker to sync if this is a snowball or fireball
     private static final TrackedData<Boolean> IS_SNOWBALL = DataTracker.registerData(TinyGhastFireballEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 
     private LivingEntity target;
@@ -58,7 +57,6 @@ public class TinyGhastFireballEntity extends ThrownItemEntity {
         this.targetUuid = target.getUuid();
         this.setVelocity(X, Y, Z, 1.0F, 1.0F);
         this.cooldown = 0;
-        //this.setPosition(owner.getX(), owner.getBodyY(0.5) + 0.5, owner.getZ());
 
         // 25% chance to be a snowball
         if (!world.isClient && world.random.nextFloat() < 0.25f) {
@@ -108,7 +106,6 @@ public class TinyGhastFireballEntity extends ThrownItemEntity {
         }
         this.cooldown--;
 
-        // Remove projectile if it's in the ground for too long
     }
 
     @Override
@@ -169,16 +166,16 @@ public class TinyGhastFireballEntity extends ThrownItemEntity {
         this.discard();
     }
 
+    // This creates a purely visual explosion that does no damage and breaks no blocks.
     private void createVisualExplosion() {
         if (!this.getWorld().isClient) {
-            // This creates a purely visual explosion that does no damage and breaks no blocks.
             this.getWorld().createExplosion(this, this.getX(), this.getY(), this.getZ(), 0.5f, false, World.ExplosionSourceType.NONE);
         }
     }
 
+    // This determines what the FlyingItemEntityRenderer renders
     @Override
     public ItemStack getStack() {
-        // This determines what the FlyingItemEntityRenderer renders
         if (this.dataTracker.get(IS_SNOWBALL)) {
             return new ItemStack(Items.SNOWBALL);
         } else {

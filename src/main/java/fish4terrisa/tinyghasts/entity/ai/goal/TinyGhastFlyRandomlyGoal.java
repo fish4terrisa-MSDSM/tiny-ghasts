@@ -18,9 +18,6 @@ public class TinyGhastFlyRandomlyGoal extends Goal {
         this.setControls(EnumSet.of(Goal.Control.MOVE));
     }
 
-    /**
-     * Determines if the goal should begin execution.
-     */
     @Override
     public boolean canStart() {
         MoveControl moveControl = this.ghast.getMoveControl();
@@ -28,7 +25,7 @@ public class TinyGhastFlyRandomlyGoal extends Goal {
         // If the ghast is not already trying to move somewhere...
         if (!moveControl.isMoving()) {
             // ...then there is a small chance to start this goal.
-            // This prevents the goal from firing constantly.
+            // This prevents the goal from firing constantly(and becoming annoying)
             return this.ghast.getRandom().nextInt(5) == 1;
         } else {
             double distanceX = moveControl.getTargetX() - this.ghast.getX();
@@ -40,19 +37,11 @@ public class TinyGhastFlyRandomlyGoal extends Goal {
         }
     }
 
-    /**
-     * Determines if the goal should continue to execute.
-     *
-     * @return false, because this is a "one-shot" goal. It sets a destination and immediately yields control.
-     */
     @Override
     public boolean shouldContinue() {
         return false;
     }
 
-    /**
-     * Executes the goal's main logic.
-     */
     @Override
     public void start() {
         Random random = this.ghast.getRandom();
@@ -67,8 +56,6 @@ public class TinyGhastFlyRandomlyGoal extends Goal {
             targetY = this.ghast.getOwner().getY() + (random.nextFloat() * 2.0F - 1.0F) * 2.0F;
             targetZ = this.ghast.getOwner().getZ() + (random.nextFloat() * 2.0F - 1.0F) * 4.0F;
         }
-        //this.ghast.getLookControl().lookAt(targetX, targetY, targetZ, 10.0F, 40.0F);
-        // Tell the Ghast's move controller to move to the target destination with a speed of 1.0.
         this.ghast.getMoveControl().moveTo(targetX, targetY, targetZ, 1.0D);
     }
 }

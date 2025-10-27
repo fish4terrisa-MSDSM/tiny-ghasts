@@ -14,7 +14,7 @@ public class OwnerHurtByTargetGoal extends TrackTargetGoal {
     private int lastAttackedTime;
 
     public OwnerHurtByTargetGoal(TinyGhastEntity ghast) {
-        // set mustSee to false so the Ghast will help its owner even if it didn't witness the attack directly.
+        // set mustSee(arg[1]) to false so the Ghast will help its owner even if it didn't witness the attack directly.
         super(ghast, false);
         this.ghast = ghast;
         this.setControls(EnumSet.of(Control.TARGET));

@@ -96,7 +96,7 @@ public class TinyGhastEntity extends GhastEntity {
         // Intercept what would be a fatal blow for a tamed Ghast
         if (this.isTamed() && (this.getHealth() - amount <= 0)) {
             // Instead of dying, enter the downed state
-            this.setHealth(this.getMaxHealth()); // Heal to full
+            this.setHealth(this.getMaxHealth());
             this.setDowned(true);
             this.getWorld().playSound(null, this.getBlockPos(), this.getDeathSound(), this.getSoundCategory(), 1.0f, 1.0f);
             this.setTarget(null); // Clear any active target
@@ -116,7 +116,7 @@ public class TinyGhastEntity extends GhastEntity {
             this.setDownStatus(false);
         }
 
-
+        // Only add counter if it's below 100ticks(5secs), prevent overflowing
         if (this.ticksSinceLastHit <= 100) {
             this.ticksSinceLastHit++;
         }
@@ -149,7 +149,6 @@ public class TinyGhastEntity extends GhastEntity {
                 this.setDowned(false);
             }
 
-            // Replace lava bucket with an empty bucket if not in creative mode
             if (!player.getAbilities().creativeMode) {
                 player.setStackInHand(hand, new ItemStack(Items.BUCKET));
             }
@@ -190,13 +189,12 @@ public class TinyGhastEntity extends GhastEntity {
 
     @Override
     public boolean isImmobile() {
-        // This effectively freezes the entity in place while downed, preventing AI movement.
         return super.isImmobile() || this.isDowned();
     }
 
     @Override
     public boolean isInvulnerableTo(ServerWorld world, DamageSource source) {
-        // Makes the entity invulnerable while downed, except for things like /kill
+        // Makes the entity invulnerable while downed.
         return this.isDowned() || super.isInvulnerableTo(world, source);
     }
 
@@ -237,9 +235,6 @@ public class TinyGhastEntity extends GhastEntity {
         if (lazyEntityReference != null) {
             lazyEntityReference.writeNbt(nbt, "Owner");
         }
-        //if (this.getOwnerUuid().isPresent()) {
-        //    nbt.put("Owner", Uuids.CODEC, this.getOwnerUuid().get());
-        //}
     }
 
     @Override
@@ -259,10 +254,6 @@ public class TinyGhastEntity extends GhastEntity {
         }
         this.setTamed(nbt.getBoolean("IsTamed").orElse(false));
         this.setDowned(nbt.getBoolean("IsDowned").orElse(false));
-        //UUID ownerUuid = nbt.get("Owner", Uuids.CODEC).orElse(null);
-        //if (ownerUuid != null) {
-        //    this.setOwnerUuid(Optional.of(ownerUuid));
-        //}
     }
     
     public boolean shouldAttack(LivingEntity entity, ServerWorld world) {
@@ -291,10 +282,6 @@ public class TinyGhastEntity extends GhastEntity {
         return LazyEntityReference.resolve(this.getOwnerReference(), this.getWorld(), LivingEntity.class);
     }
 
-    //public void setOwner(PlayerEntity player) {
-    //    this.setTamed(true);
-    //    this.setOwnerUuid(Optional.of(player.getUuid()));
-    //}
     public void setOwner(@Nullable LivingEntity owner) {
         this.dataTracker.set(OWNER_UUID, Optional.ofNullable(owner).map(LazyEntityReference::new));
     }
@@ -333,7 +320,6 @@ public class TinyGhastEntity extends GhastEntity {
 
         // This method handles everything, including detaching from the old world
         // and attaching to the new one.
-        //this.teleport(newWorld, targetPos.getX() + 0.5, targetPos.getY(), targetPos.getZ() + 0.5, this.getYaw(), this.getPitch());
         TeleportTarget target = new TeleportTarget(newWorld, new Vec3d(targetPos.getX() + 0.5, targetPos.getY(), targetPos.getZ() + 0.5), Vec3d.ZERO, this.getYaw(), this.getPitch(), TeleportTarget.ADD_PORTAL_CHUNK_TICKET);
         this.teleportTo(target);
         this.getNavigation().stop(); // Stop any current pathing.
@@ -371,7 +357,7 @@ public class TinyGhastEntity extends GhastEntity {
             this.setDowned(true);
             this.getWorld().playSound(null, this.getBlockPos(), this.getDeathSound(), this.getSoundCategory(), 1.0f, 1.0f);
             this.setTarget(null); // Clear any active target
-            return; // Prevents the damage and subsequent death
+            return; // Escape death
         }
         super.onDeath(damageSource);
     }

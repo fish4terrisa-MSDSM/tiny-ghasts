@@ -15,15 +15,12 @@ public class TinyGhastRevengeGoal extends TrackTargetGoal {
     private int lastAttackedTime;
 
     public TinyGhastRevengeGoal(TinyGhastEntity ghast) {
-        // We set checkVisibility to false because a ghast can attack what it can't "see" through walls briefly.
+        // Set checkVisibility to false so a tiny ghast can attack what it can't "see" through walls briefly.
         super(ghast, false);
         this.ghast = ghast;
         this.setControls(EnumSet.of(Goal.Control.TARGET));
     }
 
-    /**
-     * Returns whether an AI task is interruptible by a higher priority task.
-     */
     @Override
     public boolean canStart() {
         LivingEntity attacker = this.ghast.getAttacker();
@@ -31,7 +28,6 @@ public class TinyGhastRevengeGoal extends TrackTargetGoal {
             return false;
         }
 
-        // Use the custom canTarget check from TinyGhastEntity
         if (!this.ghast.canTarget(attacker)) {
             return false;
         }
@@ -41,9 +37,6 @@ public class TinyGhastRevengeGoal extends TrackTargetGoal {
         return this.ghast.age > lastAttackedTime + 100;
     }
 
-    /**
-     * Execute a one-off task
-     */
     @Override
     public void start() {
         // Set the ghast's target to the attacker
@@ -51,7 +44,7 @@ public class TinyGhastRevengeGoal extends TrackTargetGoal {
         this.lastAttacker = this.ghast.getAttacker();
         this.lastAttackedTime = this.ghast.getLastAttackedTime();
 
-        // Let other tiny ghasts owned by the same player know about the attacker
+        // Inform other tiny ghasts owned by the same player about the attacker
         LivingEntity owner = this.ghast.getOwner();
         if (owner instanceof PlayerEntity) {
             this.ghast.getWorld().getEntitiesByClass(TinyGhastEntity.class, this.ghast.getBoundingBox().expand(40.0D, 20.0D, 40.0D), (otherGhast) -> {

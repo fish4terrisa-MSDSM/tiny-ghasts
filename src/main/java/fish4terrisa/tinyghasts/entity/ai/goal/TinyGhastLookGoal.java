@@ -37,20 +37,8 @@ public class TinyGhastLookGoal extends Goal {
             return true;
         }
 
-        // Find a random nearby entity to look at
-        //List<LivingEntity> nearbyEntities = this.ghast.getWorld().getEntitiesByClass(
-        //        LivingEntity.class,
-        //        this.ghast.getBoundingBox().expand(20.0), // 20 block search radius
-        //        (entity) -> entity.isAlive() && entity != this.ghast && entity != owner
-        //);
-
-        //if (!nearbyEntities.isEmpty() && this.ghast.getRandom().nextFloat() < 0.5f) {
-        //    this.target = nearbyEntities.get(this.ghast.getRandom().nextInt(nearbyEntities.size()));
-        //    this.isLookingAtRandomDirection = false;
-        //    return true;
-        //}
-
         // If no entity was found, default to looking in a random direction
+        // or ghast.getTarget()
         this.target = null;
         this.isLookingAtRandomDirection = true;
         return true;
