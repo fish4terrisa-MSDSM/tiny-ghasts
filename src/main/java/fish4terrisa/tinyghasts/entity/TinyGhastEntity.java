@@ -30,6 +30,7 @@ import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.entity.LazyEntityReference;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.world.TeleportTarget;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.TeleportTarget;
@@ -332,7 +333,6 @@ public class TinyGhastEntity extends GhastEntity {
         if (owner == null) {
             return;
         }
-
         // Find a safe position near the owner in the new world.
         BlockPos targetPos = findSafeTeleportPosition(newWorld, owner.getBlockPos());
 
@@ -355,6 +355,7 @@ public class TinyGhastEntity extends GhastEntity {
      * @param center The central position to search around.
      * @return A safe BlockPos, or null if none is found.
      */
+    @Nullable
     private BlockPos findSafeTeleportPosition(ServerWorld world, BlockPos center) {
         Predicate<BlockPos> spotValidator;
         spotValidator = (pos) -> world.getBlockState(pos).isAir() &&

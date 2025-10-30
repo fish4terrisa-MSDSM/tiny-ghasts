@@ -15,6 +15,7 @@ Currently only 1.21.5 is officially supported! May add support for later version
  - Code cleaning!
  - Naturally Spawning: Currently tiny ghasts can only be summoned using commands, will add a way for them to be naturally spawned in near future!(or even multiple ways!)
  - Tameable amount limitation: Currently you can tame unlimited amount of tiny ghasts, but wont that be too powerful? I may add a limition later, a dynamic limition depending on the game difficulty and game mode would be a great idea!(research still needed)
+ - Bug fix: currently if tge player died in nether or end and respawn in overworld, then the tiny ghasts wont be able to teleport to the player anymore.
 
 ## License
 [AGPLv3](LICENSE)!

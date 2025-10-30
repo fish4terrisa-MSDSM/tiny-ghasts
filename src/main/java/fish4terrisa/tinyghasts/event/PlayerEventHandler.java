@@ -25,6 +25,12 @@ public class PlayerEventHandler {
         ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
             // After respawn, the player entity is recreated. We use the new instance.
             teleportPetsToPlayer(newPlayer, (ServerWorld) newPlayer.getWorld());
+            oldPlayer.getWorld().getEntitiesByClass(TinyGhastEntity.class, oldPlayer.getBoundingBox().expand(40.0D, 20.0D, 40.0D), (tinyghast) -> {
+                return (tinyghast.getOwner() == oldPlayer) || (tinyghast.getOwner() == newPlayer);                 
+            }).forEach((tinyghast) -> {
+                tinyghast.teleportToOwner((ServerWorld) newPlayer.getWorld());
+            });
+
         });
 
         // This event can help catch logins and some teleports
