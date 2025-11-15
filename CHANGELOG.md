@@ -5,3 +5,7 @@
  - Now Iron Golems and Snow Golems wont attack tiny ghasts.
  - Now tiny ghasts will actively attack hostile mobs.
  - Tiny Ghasts now will teleport to it's owner before the chunk it's in got unloaded.
+ - Fixed the on death teleport system, now if the player died in another dimension the tiny ghast will be teleported to their owner's spawn instead.
+ - Now tiny ghasts can breath in water.
+ - Now tiny ghasts wont go through the portal by itself. It'll teleport to you once you went through the portal.
+ - Tiny ghasts should be able to spawn rarely in nether now, follow the same rule as ghasts.(untested, at least I'm not lucky enough to get one to spawn)

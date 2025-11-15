@@ -37,6 +37,9 @@ import net.minecraft.world.TeleportTarget;
 import net.minecraft.entity.mob.Monster;
 import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
+import net.minecraft.world.WorldAccess;
+import net.minecraft.entity.SpawnReason;
+import net.minecraft.util.math.random.Random;
 import java.util.function.Predicate;
 
 import java.util.Optional;
@@ -156,6 +159,7 @@ public class TinyGhastEntity extends GhastEntity {
         if (this.isDowned() && this.isOwner(player) && itemStack.getItem() == Items.LAVA_BUCKET) {
             if (!this.getWorld().isClient) {
                 this.setDowned(false);
+                this.clearStatusEffects();
             }
 
             if (!player.getAbilities().creativeMode) {
@@ -239,6 +243,23 @@ public class TinyGhastEntity extends GhastEntity {
         this.setAiDisabled(status);
         this.setGlowing(status);
     }
+
+    @Override
+    protected int getNextAirUnderwater(int air) {
+        return air;
+    }
+
+    @Override
+    public boolean canUsePortals(boolean allowVehicles) {
+        // This prevents the entity from traveling through portals by itself.
+        // It relies on Player events to follow the player across dimensions.
+        return false;
+    }
+
+    public static boolean canSpawn(EntityType<GhastEntity> type, WorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random) {
+        return random.nextInt(2000) == 0 && GhastEntity.canMobSpawn(type, world, spawnReason, pos, random);
+    }
+
 
     @Override
     public void writeCustomDataToNbt(NbtCompound nbt) {

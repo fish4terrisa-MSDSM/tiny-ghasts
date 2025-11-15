@@ -1,11 +1,18 @@
 package fish4terrisa.tinyghasts.event;
 
 import fish4terrisa.tinyghasts.entity.TinyGhastEntity;
+import net.minecraft.world.TeleportTarget;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.registry.RegistryKey;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.minecraft.entity.Entity;
 
 import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.entity.LivingEntity;
@@ -21,6 +28,20 @@ public class PlayerEventHandler {
             teleportPetsToPlayer(player, destination);
         });
 
+        ServerLivingEntityEvents.AFTER_DEATH.register((entity, damagesource) -> {
+            if (entity instanceof ServerPlayerEntity player) {
+                TeleportTarget target = player.getRespawnTarget(false, TeleportTarget.ADD_PORTAL_CHUNK_TICKET);
+                player.getWorld().getEntitiesByClass(
+                            TinyGhastEntity.class,
+                            player.getBoundingBox().expand(32.0), // Check in a 32-block radius around the player
+                            ghast -> ghast.isOwner(player)
+                    ).forEach(tinyGhast -> {
+                    // Step 6: Create the TeleportTarget and execute teleportation
+                        tinyGhast.teleportTo(target);
+                        tinyGhast.getNavigation().stop();
+                    });
+            }
+        });
         // Event for when a player respawns
         ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
             // After respawn, the player entity is recreated. We use the new instance.
