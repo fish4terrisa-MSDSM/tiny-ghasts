@@ -42,6 +42,8 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.entity.Entity;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.SpawnEggItem;
 
 import java.util.HashMap;
 import java.util.Map;

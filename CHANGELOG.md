@@ -1,4 +1,4 @@
-# v1.0.1
+# v1.2.0
  - Added passsive health regen.
  - Reworked fireball shooting goal, fixed the bug of tiny ghast frozen in place while shooting.
  - Fixed the death logic
