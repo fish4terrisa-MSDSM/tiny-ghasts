@@ -87,7 +87,7 @@ public class TinyGhastEntity extends GhastEntity {
         this.targetSelector.add(2, new OwnerHurtByTargetGoal(this));
         this.targetSelector.add(3, new TinyGhastRevengeGoal(this));
         this.targetSelector.add(4, new ActiveTargetGoal<MobEntity>(this, MobEntity.class, 5, false, false, this::shouldAttack));
-        this.goalSelector.add(5, new TeleportToOwnerGoal(this, 15));
+        this.goalSelector.add(5, new TeleportToOwnerGoal(this, 10));
         this.goalSelector.add(6, new TinyGhastFlyRandomlyGoal(this));
         this.goalSelector.add(7, new TinyGhastLookGoal(this));
         this.goalSelector.add(7, new TinyGhastFireballAttackGoal(this));
