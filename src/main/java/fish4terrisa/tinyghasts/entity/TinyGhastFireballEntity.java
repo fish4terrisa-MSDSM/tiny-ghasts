@@ -152,6 +152,7 @@ public class TinyGhastFireballEntity extends ThrownItemEntity {
                     livingEntity.damage((ServerWorld) this.getWorld(), damageSource, 4.0f); // 2 heart
                     livingEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 80, 1));
                 }
+                livingEntity.setFireTicks(40); // set it on fire for 2 sec
                 Vec3d knockbackVec = this.getPos().subtract(livingEntity.getPos()).normalize();
                 livingEntity.takeKnockback(0.5, knockbackVec.x, knockbackVec.z);
             } else {
