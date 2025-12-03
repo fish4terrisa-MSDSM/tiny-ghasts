@@ -1,11 +1,4 @@
-# v1.2.0
- - Added passsive health regen.
- - Reworked fireball shooting goal, fixed the bug of tiny ghast frozen in place while shooting.
- - Fixed the death logic
- - Now Iron Golems and Snow Golems wont attack tiny ghasts.
- - Now tiny ghasts will actively attack hostile mobs.
- - Tiny Ghasts now will teleport to it's owner before the chunk it's in got unloaded.
- - Fixed the on death teleport system, now if the player died in another dimension the tiny ghast will be teleported to their owner's spawn instead.
- - Now tiny ghasts can breath in water.
- - Now tiny ghasts wont go through the portal by itself. It'll teleport to you once you went through the portal.
- - Tiny ghasts should be able to spawn rarely in nether now, follow the same rule as ghasts.(untested, at least I'm not lucky enough to get one to spawn)
+# 1.3.0
+ - Reworked teleport logic, now it will teleport to the owner more constantly
+ - Now tiny ghasts will teleport to the owner if it havent seen the owner for 2400 ticks(2min)
+ - Changed fireball logic. The snowball varient will apply freeze effect instead now.

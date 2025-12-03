@@ -126,10 +126,17 @@ public class TinyGhastFireballEntity extends ThrownItemEntity {
         LivingEntity entity = (LivingEntity) entityHitResult.getEntity();
         TinyGhastEntity owner = (TinyGhastEntity) this.getOwner();
 
-        if (entity == owner || entity == owner.getOwner() || (owner.getOwner().getScoreboardTeam() != null && entity.getScoreboardTeam() == owner.getOwner().getScoreboardTeam())) {
+        if (entity == owner || entity == owner.getOwner()) {
             this.createVisualExplosion();
             this.discard();
             return;
+        }
+        if (owner.getOwner() != null) {
+            if (owner.getOwner().getScoreboardTeam() != null && entity.getScoreboardTeam() == owner.getOwner().getScoreboardTeam()) {
+                this.createVisualExplosion();
+                this.discard();
+                return;
+            }
         }
         if (entity instanceof TinyGhastEntity && ((TinyGhastEntity) entity).getOwner() == owner.getOwner()) {
             this.createVisualExplosion();
@@ -152,7 +159,7 @@ public class TinyGhastFireballEntity extends ThrownItemEntity {
                     livingEntity.damage((ServerWorld) this.getWorld(), damageSource, 4.0f); // 2 heart
                     livingEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 80, 1));
                 }
-                livingEntity.setFireTicks(40); // set it on fire for 2 sec
+                livingEntity.setFrozenTicks(livingEntity.getMinFreezeDamageTicks() + 160); // set it freeze for 8 secs + min freeze damage tick
                 Vec3d knockbackVec = this.getPos().subtract(livingEntity.getPos()).normalize();
                 livingEntity.takeKnockback(0.5, knockbackVec.x, knockbackVec.z);
             } else {

@@ -3,7 +3,7 @@ This mod added cute tiny (sad) ghasts that'll fight for you!
 
 ## Features
  - It can be tamed with cake by chance, so make sure store ton of cake before trying to tame one!
- - It'll follow you and fight for you! Every 4 seconds a fireball will be fired! A tiny ghast has 25% chance to fire a snowball that'll deal 2 heart damage and apply 4 secs of slowness and 75% chance to fire a fireball that'll deal half a heart damage! Both kinds of fireball will light the target on fire for 2 secs!
+ - It'll follow you and fight for you! Every 4 seconds a fireball will be fired! A tiny ghast has 25% chance to fire a snowball that'll deal 2 heart damage and apply 4 secs of slowness also set it freeze for 8 secs + min freeze ticks and 75% chance to fire a fireball that'll deal half a heart damage and set it on fire for 2 secs!
  - Once a tamed tiny ghast's health dropped below zero, it'll freeze and become invincible. Use a lava bucket to revive it!
  - If you are too far away from it or in another dimension, it'll teleport to you, so no need to worry about it getting lost!
  - Tiny ghasts will spawn rarely in nether now, follow the same rule as ghasts!(untested, at least I'm not lucky enough to get one to spawn, use command to summon one if needed)

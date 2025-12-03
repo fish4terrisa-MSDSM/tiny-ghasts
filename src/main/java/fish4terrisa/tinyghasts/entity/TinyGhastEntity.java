@@ -40,6 +40,8 @@ import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.util.math.random.Random;
+import net.minecraft.util.hit.HitResult;
+import net.minecraft.world.RaycastContext;
 import java.util.function.Predicate;
 
 import java.util.Optional;
@@ -63,6 +65,7 @@ public class TinyGhastEntity extends GhastEntity {
     protected static final TrackedData<Boolean> IS_DOWNED = DataTracker.registerData(TinyGhastEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 
     private int ticksSinceLastHit = 0;
+    private int ticksNotSeenOwner = 0;
 
     public TinyGhastEntity(EntityType<? extends GhastEntity> entityType, World world) {
         super(entityType, world);
@@ -87,8 +90,8 @@ public class TinyGhastEntity extends GhastEntity {
         this.targetSelector.add(2, new OwnerHurtByTargetGoal(this));
         this.targetSelector.add(3, new TinyGhastRevengeGoal(this));
         this.targetSelector.add(4, new ActiveTargetGoal<MobEntity>(this, MobEntity.class, 5, false, false, this::shouldAttack));
-        this.goalSelector.add(5, new TeleportToOwnerGoal(this, 10));
-        this.goalSelector.add(6, new TinyGhastFlyRandomlyGoal(this));
+        this.goalSelector.add(7, new TeleportToOwnerGoal(this, 10));
+        this.goalSelector.add(7, new TinyGhastFlyRandomlyGoal(this));
         this.goalSelector.add(7, new TinyGhastLookGoal(this));
         this.goalSelector.add(7, new TinyGhastFireballAttackGoal(this));
 
@@ -143,6 +146,19 @@ public class TinyGhastEntity extends GhastEntity {
                     if (this.age % 40 == 0) {
                         this.heal(2.0f);
                     }
+                }
+            }
+        }
+        if (!this.getWorld().isClient()) {
+            if (this.isTamed() && this.getOwner() != null) {
+                if (this.canSee(this.getOwner())) {
+                    this.ticksNotSeenOwner = 0;
+                } else {
+                    this.ticksNotSeenOwner++;
+                }
+                if (ticksNotSeenOwner > 2400) {
+                    this.teleportToOwner((ServerWorld) this.getWorld());
+                    this.ticksNotSeenOwner = 0;
                 }
             }
         }
@@ -256,6 +272,11 @@ public class TinyGhastEntity extends GhastEntity {
         return false;
     }
 
+    @Override
+    public boolean canFreeze() {
+        return false;
+    }
+
     public static boolean canSpawn(EntityType<GhastEntity> type, WorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random) {
         return random.nextInt(2000) == 0 && GhastEntity.canMobSpawn(type, world, spawnReason, pos, random);
     }
@@ -335,6 +356,23 @@ public class TinyGhastEntity extends GhastEntity {
         this.dataTracker.set(OWNER_UUID, Optional.ofNullable(owner));
     }
 
+    public boolean isLineOfSightClear(BlockPos targetPos) {
+        // RaycastContext defines the start, end, what shape to look for (COLLIDER means solid blocks),
+        // how to handle fluids (NONE means ignore water), and the entity context.
+        Vec3d candidateVec = new Vec3d(targetPos.getX(), targetPos.getY(), targetPos.getZ());
+        Vec3d ownerVec = new Vec3d(this.getOwner().getX(), this.getOwner().getEyeY(), this.getOwner().getZ());
+        RaycastContext context = new RaycastContext(
+            candidateVec,
+            ownerVec,
+            RaycastContext.ShapeType.COLLIDER,
+            RaycastContext.FluidHandling.NONE,
+            this // The entity invoking the check (can use ShapeContext.absent() if static)
+        );
+
+    // If the result type is MISS, it means the ray hit nothing (air), so the line is clear.
+        return this.getWorld().raycast(context).getType() == HitResult.Type.MISS;
+    }
+
     @Override
     public boolean canTarget(LivingEntity target) {
         if (this.getOwner() != null) {
@@ -381,6 +419,20 @@ public class TinyGhastEntity extends GhastEntity {
         Predicate<BlockPos> spotValidator;
         spotValidator = (pos) -> world.getBlockState(pos).isAir() &&
                         !world.getBlockState(pos.down()).getCollisionShape(world, pos.down()).isEmpty();
+        // Choose a place where it can have direct eyesight to the owner
+        for (int i = 0; i < 8; ++i) {
+            int x = center.getX() + this.random.nextInt(7) - 3;
+            int z = center.getZ() + this.random.nextInt(7) - 3;
+            int y = center.getY() + this.random.nextInt(5) - 1;
+
+            BlockPos.Mutable testPos = new BlockPos.Mutable(x, y, z);
+            if (this.isLineOfSightClear(testPos)) {
+                if (spotValidator.test(testPos)) {
+                    return testPos.toImmutable();
+                }
+            }
+        }
+
         for (int i = 0; i < 8; ++i) {
             // Search in a 7x7x5 area around the player
             int x = center.getX() + this.random.nextInt(7) - 3;
