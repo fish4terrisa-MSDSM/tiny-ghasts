@@ -3,6 +3,7 @@ This mod added cute tiny (sad) ghasts that'll fight for you!
 
 ## Screenshot
 [tinyghast.png](doc/tinyghast.png)
+<p align="center"><img src="doc/tinyghast.png" width="80%"></p>
 
 ## Features
  - It can be tamed with cake by chance, so make sure store ton of cake before trying to tame one!
