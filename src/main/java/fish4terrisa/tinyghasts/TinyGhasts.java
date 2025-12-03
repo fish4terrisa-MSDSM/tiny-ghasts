@@ -22,6 +22,7 @@ import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityType;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityType;
 
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.block.AbstractBlock;
 import net.fabricmc.fabric.api.item.v1.FabricItem;
 import net.fabricmc.fabric.api.item.v1.FabricItem.Settings;
@@ -36,6 +37,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
+import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
@@ -43,6 +45,7 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemGroups;
 import net.minecraft.item.SpawnEggItem;
 
 import java.util.HashMap;
@@ -74,10 +77,17 @@ public class TinyGhasts implements ModInitializer {
             FabricEntityTypeBuilder.<TinyGhastFireballEntity>create(SpawnGroup.MISC, TinyGhastFireballEntity::new).dimensions(EntityDimensions.fixed(0.25f, 0.25f)).trackRangeBlocks(4).trackedUpdateRate(10).build(RegistryKey.of(RegistryKeys.ENTITY_TYPE, Identifier.of("tiny-ghasts", "tinyghast_fireball")))
     );
 
+    public static final Item TINY_GHAST_SPAWN_EGG = Items.register(
+            RegistryKey.of(RegistryKeys.ITEM, Identifier.of("tiny-ghasts", "tiny_ghast_spawn_egg")),
+             (Item.Settings settings) -> new SpawnEggItem(TINYGHAST, (Item.Settings)settings));
+
     @Override
     public void onInitialize() {
         FabricDefaultAttributeRegistry.register(TINYGHAST, TinyGhastEntity.createMobAttributes());
         PlayerEventHandler.register();
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS).register(content -> {
+            content.addAfter(Items.GHAST_SPAWN_EGG, TINY_GHAST_SPAWN_EGG);
+        });
     }
 
 }
