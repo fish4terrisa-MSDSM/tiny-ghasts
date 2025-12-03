@@ -3,7 +3,8 @@ This mod added cute tiny (sad) ghasts that'll fight for you!
 
 ## Screenshot
 <p align="center"><img src="doc/tinyghast.png" width="80%"></p>
-(This screenshot is taken with resource pack [Cute Mob Models RP](https://www.curseforge.com/minecraft/texture-packs/cute-mob-models-resource-pack) installed! Make sure to check it out! It'll automatically use the render for ghast, so all texture/model applied to normal ghast will apply to tiny ghasts as well!)
+ 
+\(This screenshot is taken with resource pack [Cute Mob Models RP](https://www.curseforge.com/minecraft/texture-packs/cute-mob-models-resource-pack) installed! Make sure to check it out! It'll automatically use the render for ghast, so all texture/model applied to normal ghast will apply to tiny ghasts as well!\)
 
 ## Features
  - It can be tamed with cake by chance, so make sure store ton of cake before trying to tame one!
