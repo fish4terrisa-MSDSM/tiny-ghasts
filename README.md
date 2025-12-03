@@ -2,7 +2,6 @@
 This mod added cute tiny (sad) ghasts that'll fight for you!
 
 ## Screenshot
-[tinyghast.png](doc/tinyghast.png)
 <p align="center"><img src="doc/tinyghast.png" width="80%"></p>
 
 ## Features
