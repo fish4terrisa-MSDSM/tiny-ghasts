@@ -1,10 +1,12 @@
 package fish4terrisa.tinyghasts.event;
 
 import fish4terrisa.tinyghasts.entity.TinyGhastEntity;
+import fish4terrisa.tinyghasts.TinyGhasts;
 import net.minecraft.world.TeleportTarget;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.util.TypeFilter;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.registry.RegistryKey;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
@@ -18,6 +20,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.entity.LivingEntity;
 
 import java.util.UUID;
+import java.util.List;
 
 public class PlayerEventHandler {
 
@@ -26,14 +29,20 @@ public class PlayerEventHandler {
             // 'player' is the ServerPlayerEntity that changed worlds.
             // 'destination' is the ServerWorld they arrived in.
             teleportPetsToPlayer(player, destination);
+            List<? extends TinyGhastEntity> ghasts_in_origin = origin.getEntitiesByType(
+                        TypeFilter.instanceOf(TinyGhastEntity.class),
+                        ghast -> ghast.isOwner(player)
+                );
+            for (TinyGhastEntity ghast : ghasts_in_origin) {
+                ghast.teleportToOwner(destination);
+            }
         });
 
         ServerLivingEntityEvents.AFTER_DEATH.register((entity, damagesource) -> {
             if (entity instanceof ServerPlayerEntity player) {
                 TeleportTarget target = player.getRespawnTarget(false, TeleportTarget.ADD_PORTAL_CHUNK_TICKET);
-                player.getWorld().getEntitiesByClass(
-                            TinyGhastEntity.class,
-                            player.getBoundingBox().expand(32.0), // Check in a 32-block radius around the player
+                player.getServerWorld().getEntitiesByType(
+                            TypeFilter.instanceOf(TinyGhastEntity.class),
                             ghast -> ghast.isOwner(player)
                     ).forEach(tinyGhast -> {
                     // Step 6: Create the TeleportTarget and execute teleportation
@@ -46,7 +55,7 @@ public class PlayerEventHandler {
         ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
             // After respawn, the player entity is recreated. We use the new instance.
             teleportPetsToPlayer(newPlayer, (ServerWorld) newPlayer.getWorld());
-            oldPlayer.getWorld().getEntitiesByClass(TinyGhastEntity.class, oldPlayer.getBoundingBox().expand(40.0D, 20.0D, 40.0D), (tinyghast) -> {
+            oldPlayer.getServerWorld().getEntitiesByType(TypeFilter.instanceOf(TinyGhastEntity.class), (tinyghast) -> {
                 return (tinyghast.getOwner() == oldPlayer) || (tinyghast.getOwner() == newPlayer);                 
             }).forEach((tinyghast) -> {
                 tinyghast.teleportToOwner((ServerWorld) newPlayer.getWorld());
