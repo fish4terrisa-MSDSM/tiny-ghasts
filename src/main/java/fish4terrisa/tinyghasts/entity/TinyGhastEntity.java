@@ -4,6 +4,8 @@ import fish4terrisa.tinyghasts.TinyGhasts;
 
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.mob.GhastEntity;
+import net.minecraft.advancement.criterion.Criteria;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.world.World;
 
 import net.minecraft.entity.data.DataTracker;
@@ -47,6 +49,7 @@ import java.util.function.Predicate;
 import java.util.Optional;
 import java.util.UUID;
 import java.lang.reflect.Method;
+import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -58,6 +61,8 @@ import fish4terrisa.tinyghasts.entity.ai.goal.TinyGhastLookGoal;
 import fish4terrisa.tinyghasts.entity.ai.goal.OwnerHurtByTargetGoal;
 import fish4terrisa.tinyghasts.entity.ai.goal.OwnerHurtTargetGoal;
 import fish4terrisa.tinyghasts.entity.ai.control.TinyGhastMoveControl;
+
+import fish4terrisa.tinyghasts.utils.TameableInterface;
 
 public class TinyGhastEntity extends GhastEntity {
     protected static final TrackedData<Optional<LazyEntityReference<LivingEntity>>> OWNER_UUID = DataTracker.registerData(TinyGhastEntity.class, TrackedDataHandlerRegistry.LAZY_ENTITY_REFERENCE);
@@ -190,17 +195,16 @@ public class TinyGhastEntity extends GhastEntity {
             }
             if (!this.getWorld().isClient) {
                 if (this.random.nextInt(3) == 0) {
-                    this.setOwner(player);
-                    this.setTamed(true);
+                    this.setTamedBy(player);
                     this.navigation.stop();
                     this.setTarget(null);
                     this.setPersistent();
                     if (this.getWorld() instanceof ServerWorld) {
                         ((ServerWorld) this.getWorld()).spawnParticles(
                                 ParticleTypes.HEART,
-                                this.getX(),
-                                this.getBodyY(0.5D),
-                                this.getZ(),
+                                this.getParticleX(1.0),
+                                this.getRandomBodyY() + 0.5,
+                                this.getParticleZ(1.0),
                                 7, // particle count
                                 this.random.nextGaussian() * 0.02D,
                                 this.random.nextGaussian() * 0.02D,
@@ -300,15 +304,15 @@ public class TinyGhastEntity extends GhastEntity {
         if (lazyEntityReference != null) {
             try {
                 this.dataTracker.set(OWNER_UUID, Optional.of(lazyEntityReference));
-                this.setTamed(true);
+                this.setTamed(true, true);
             } catch (Throwable throwable) {
-                this.setTamed(false);
+                this.setTamed(false, true);
             }
         } else {
             this.dataTracker.set(OWNER_UUID, Optional.empty());
-            this.setTamed(false);
+            this.setTamed(false, true);
         }
-        this.setTamed(nbt.getBoolean("IsTamed").orElse(false));
+        this.setTamed(nbt.getBoolean("IsTamed").orElse(false), true);
         this.setDowned(nbt.getBoolean("IsDowned").orElse(false));
     }
     
@@ -340,12 +344,47 @@ public class TinyGhastEntity extends GhastEntity {
         return entity == this.getOwner();
     }
 
-    public void setTamed(boolean tamed) {
+    // Since it does nothing, always pass `true` to `_updateAttributes`
+    public void setTamed(boolean tamed, boolean _updateAttributes) {
         this.dataTracker.set(IS_TAMED, tamed);
+        if (_updateAttributes) {
+            this.updateAttributesForTamed();
+        }
+    }
+    // Pseudo method... IDK why TameableEntity has this but whatever
+    protected void updateAttributesForTamed() {
     }
 
     public LivingEntity getOwner() {
         return LazyEntityReference.resolve(this.getOwnerReference(), this.getWorld(), LivingEntity.class);
+    }
+
+    // Not used at anywhere... The implemention in vanilia minecraft seems to be bugged and will always return null
+    // Just implemented to get mostly compatible with Tameable Interface in case newer version use this
+    @Nullable
+    public LivingEntity getTopLevelOwner() {
+        ObjectArraySet set = new ObjectArraySet();
+        LivingEntity owner = this.getOwner();
+        set.add(this);
+        while (TameableInterface.IsTameable(owner)) {
+            // Might be null, which means that the owner doesnt have a owner
+            LivingEntity upperowner = TameableInterface.CastgetOwner(owner);
+            if (upperowner == null) {
+                break;
+            }
+            // If the owner's owner, which is the upperowner 
+            // is itself or something it (in)directly owned, then
+            // return null since it caused circular owning
+            // Should never be called since it's a bug
+            if (set.contains(upperowner)) {
+                return null;
+            }
+            // Add the owner to the list
+            set.add(owner);
+            // Now check the upperowner
+            owner = upperowner;
+        }
+        return owner;
     }
 
     public void setOwner(@Nullable LivingEntity owner) {
@@ -354,6 +393,12 @@ public class TinyGhastEntity extends GhastEntity {
 
     public void setOwner(@Nullable LazyEntityReference<LivingEntity> owner) {
         this.dataTracker.set(OWNER_UUID, Optional.ofNullable(owner));
+    }
+
+    
+    public void setTamedBy(PlayerEntity player) {
+        this.setTamed(true, true);
+        this.setOwner(player);
     }
 
     public boolean isLineOfSightClear(BlockPos targetPos) {

@@ -22,6 +22,7 @@ Currently only 1.21.5 is officially supported! May add support for later version
  - Code cleaning!
  - Tameable amount limitation: Currently you can tame unlimited amount of tiny ghasts, but wont that be too powerful? I may add a limition later, a dynamic limition depending on the game difficulty and game mode would be a great idea!(research still needed)
  - Bug fix: currently if the player died in nether or end and respawn in overworld, then the tiny ghasts wont be able to teleport to the player anymore.
+ - Currently it doesnt work well with minecraft's player team feature. Might force the tiny ghasts to be in the same team as the Owner later.
 
 ## License
 [AGPLv3](LICENSE)!
