@@ -7,6 +7,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
+import net.minecraft.entity.Tameable;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.projectile.ProjectileEntity;
@@ -45,6 +46,7 @@ public class TinyGhastFireballEntity extends ThrownItemEntity {
     private LivingEntity target;
     private UUID targetUuid;
     private int cooldown;
+    private int existtimer;
 
     public TinyGhastFireballEntity(EntityType<? extends TinyGhastFireballEntity> entityType, World world) {
         super(entityType, world);
@@ -58,6 +60,7 @@ public class TinyGhastFireballEntity extends ThrownItemEntity {
         this.targetUuid = target.getUuid();
         this.setVelocity(X, Y, Z, 1.0F, 1.0F);
         this.cooldown = 0;
+        this.existtimer = 200;
 
         // 25% chance to be a snowball
         if (!world.isClient && world.random.nextFloat() < 0.25f) {
@@ -107,6 +110,12 @@ public class TinyGhastFireballEntity extends ThrownItemEntity {
         }
         this.cooldown--;
 
+        this.existtimer--;
+        if (this.existtimer < 0) {
+            this.createVisualExplosion();
+            this.discard();
+        }
+
     }
 
     @Override
@@ -138,7 +147,7 @@ public class TinyGhastFireballEntity extends ThrownItemEntity {
                 return;
             }
         }
-        if (entity instanceof TinyGhastEntity && ((TinyGhastEntity) entity).getOwner() == owner.getOwner()) {
+        if (entity instanceof Tameable && ((((Tameable) entity).getOwner() == owner.getOwner()) || (((Tameable) entity).getTopLevelOwner() == owner.getOwner()))) {
             this.createVisualExplosion();
             this.discard();
             return;

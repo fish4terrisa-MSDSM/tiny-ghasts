@@ -44,6 +44,7 @@ import net.minecraft.entity.SpawnReason;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.world.RaycastContext;
+import net.minecraft.entity.Tameable;
 import java.util.function.Predicate;
 
 import java.util.Optional;
@@ -62,9 +63,8 @@ import fish4terrisa.tinyghasts.entity.ai.goal.OwnerHurtByTargetGoal;
 import fish4terrisa.tinyghasts.entity.ai.goal.OwnerHurtTargetGoal;
 import fish4terrisa.tinyghasts.entity.ai.control.TinyGhastMoveControl;
 
-import fish4terrisa.tinyghasts.utils.TameableInterface;
 
-public class TinyGhastEntity extends GhastEntity {
+public class TinyGhastEntity extends GhastEntity implements Tameable {
     protected static final TrackedData<Optional<LazyEntityReference<LivingEntity>>> OWNER_UUID = DataTracker.registerData(TinyGhastEntity.class, TrackedDataHandlerRegistry.LAZY_ENTITY_REFERENCE);
     protected static final TrackedData<Boolean> IS_TAMED = DataTracker.registerData(TinyGhastEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     protected static final TrackedData<Boolean> IS_DOWNED = DataTracker.registerData(TinyGhastEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
@@ -320,14 +320,14 @@ public class TinyGhastEntity extends GhastEntity {
         if (!this.canTarget(entity)) {
             return false;
         }
-        if (entity instanceof TameableEntity) {
-            if (((TameableEntity) entity).isTamed()) {
-                if (this.getOwner() == ((TameableEntity) entity).getOwner()) {
+        if (entity instanceof Tameable) {
+            if (((Tameable) entity).getOwner() != null) {
+                if (this.getOwner() == ((Tameable) entity).getOwner()) {
                     return false;
                 }
             }
         }
-        if (entity instanceof Monster && !(entity instanceof TinyGhastEntity) && !(entity instanceof EndermanEntity) && !(entity instanceof TameableEntity) && !(entity instanceof PiglinEntity) && !(entity instanceof ZombifiedPiglinEntity)) {
+        if (entity instanceof Monster && !(entity instanceof TinyGhastEntity) && !(entity instanceof EndermanEntity) && !(entity instanceof TameableEntity) && !(entity instanceof PiglinEntity) && !(entity instanceof ZombifiedPiglinEntity) && !(entity instanceof Tameable)) {
             return true;
         }
         return false;
@@ -357,34 +357,6 @@ public class TinyGhastEntity extends GhastEntity {
 
     public LivingEntity getOwner() {
         return LazyEntityReference.resolve(this.getOwnerReference(), this.getWorld(), LivingEntity.class);
-    }
-
-    // Not used at anywhere... The implemention in vanilia minecraft seems to be bugged and will always return null
-    // Just implemented to get mostly compatible with Tameable Interface in case newer version use this
-    @Nullable
-    public LivingEntity getTopLevelOwner() {
-        ObjectArraySet set = new ObjectArraySet();
-        LivingEntity owner = this.getOwner();
-        set.add(this);
-        while (TameableInterface.IsTameable(owner)) {
-            // Might be null, which means that the owner doesnt have a owner
-            LivingEntity upperowner = TameableInterface.CastgetOwner(owner);
-            if (upperowner == null) {
-                break;
-            }
-            // If the owner's owner, which is the upperowner 
-            // is itself or something it (in)directly owned, then
-            // return null since it caused circular owning
-            // Should never be called since it's a bug
-            if (set.contains(upperowner)) {
-                return null;
-            }
-            // Add the owner to the list
-            set.add(owner);
-            // Now check the upperowner
-            owner = upperowner;
-        }
-        return owner;
     }
 
     public void setOwner(@Nullable LivingEntity owner) {
@@ -425,7 +397,7 @@ public class TinyGhastEntity extends GhastEntity {
             if (target == this.getOwner() || (this.getOwner().getScoreboardTeam() != null && this.getOwner().getScoreboardTeam() == target.getScoreboardTeam())) {
                 return false;
             }
-            if (target instanceof TinyGhastEntity && ((TinyGhastEntity) target).getOwner() == this.getOwner()) {
+            if (target instanceof Tameable && ((Tameable) target).getOwner() == this.getOwner()) {
                 return false;
             }
         }
