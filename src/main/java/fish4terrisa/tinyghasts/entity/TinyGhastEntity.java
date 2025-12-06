@@ -44,6 +44,7 @@ import net.minecraft.entity.SpawnReason;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.world.RaycastContext;
+import net.minecraft.entity.Ownable;
 import net.minecraft.entity.Tameable;
 import java.util.function.Predicate;
 
@@ -64,7 +65,7 @@ import fish4terrisa.tinyghasts.entity.ai.goal.OwnerHurtTargetGoal;
 import fish4terrisa.tinyghasts.entity.ai.control.TinyGhastMoveControl;
 
 
-public class TinyGhastEntity extends GhastEntity implements Tameable {
+public class TinyGhastEntity extends GhastEntity implements Tameable,Ownable {
     protected static final TrackedData<Optional<LazyEntityReference<LivingEntity>>> OWNER_UUID = DataTracker.registerData(TinyGhastEntity.class, TrackedDataHandlerRegistry.LAZY_ENTITY_REFERENCE);
     protected static final TrackedData<Boolean> IS_TAMED = DataTracker.registerData(TinyGhastEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     protected static final TrackedData<Boolean> IS_DOWNED = DataTracker.registerData(TinyGhastEntity.class, TrackedDataHandlerRegistry.BOOLEAN);

@@ -28,6 +28,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
 import net.minecraft.entity.projectile.SmallFireballEntity;
 import net.minecraft.item.FireChargeItem;
+import net.minecraft.entity.Ownable;
 import net.minecraft.item.SnowballItem;
 import net.minecraft.item.Item.Settings;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -39,7 +40,7 @@ import java.util.UUID;
 import fish4terrisa.tinyghasts.entity.TinyGhastEntity;
 import fish4terrisa.tinyghasts.TinyGhasts;
 
-public class TinyGhastFireballEntity extends ThrownItemEntity {
+public class TinyGhastFireballEntity extends ThrownItemEntity implements Ownable {
 
     private static final TrackedData<Boolean> IS_SNOWBALL = DataTracker.registerData(TinyGhastFireballEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 
