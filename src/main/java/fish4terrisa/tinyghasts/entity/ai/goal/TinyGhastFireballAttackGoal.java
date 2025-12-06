@@ -23,7 +23,7 @@ public class TinyGhastFireballAttackGoal extends Goal {
     @Override
     public boolean canStart() {
         LivingEntity target = this.ghast.getTarget();
-        return target != null && target.isAlive();
+        return target != null && target.isAlive() && this.ghast.canTarget(target);
     }
 
     @Override

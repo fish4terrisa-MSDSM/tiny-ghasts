@@ -282,8 +282,8 @@ public class TinyGhastEntity extends GhastEntity implements Tameable,Ownable {
         return false;
     }
 
-    public static boolean canSpawn(EntityType<GhastEntity> type, WorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random) {
-        return random.nextInt(2000) == 0 && GhastEntity.canMobSpawn(type, world, spawnReason, pos, random);
+    public static boolean OverridecanSpawn(EntityType<TinyGhastEntity> type, WorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random) {
+        return GhastEntity.canMobSpawn(type, world, spawnReason, pos, random);
     }
 
 
