@@ -321,6 +321,7 @@ public class TinyGhastEntity extends GhastEntity implements Tameable,Ownable {
         if (!this.canTarget(entity)) {
             return false;
         }
+        if (!this.isTamed()) return false;
         if (entity instanceof Tameable) {
             if (((Tameable) entity).getOwner() != null) {
                 if (this.getOwner() == ((Tameable) entity).getOwner()) {
